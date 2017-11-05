@@ -22,7 +22,9 @@
         }
     ],
     "require": {
-        "craftcms/cms": "~3.0.0-beta.23"
+        "craftcms/cms": "~3.0.0-beta.23",
+        "geoip2/geoip2": "^2.3",
+        "jaybizzle/crawler-detect": "1.*"
     },
     "repositories": [
         {

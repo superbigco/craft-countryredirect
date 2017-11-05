@@ -28,7 +28,47 @@ class Settings extends Model
     /**
      * @var string
      */
-    public $someAttribute = 'Some Default';
+    public $overrideLocaleParam = 'selected-locale';
+
+    /**
+     * @var false|string
+     */
+    public $redirectedParam = 'redirected';
+
+    /**
+     * @var string
+     */
+    public $cookieName = 'countryRedirect';
+
+    /**
+     * @var string
+     */
+    public $cookieNameBanner = 'countryRedirectBanner';
+
+    /**
+     * @var boolean
+     */
+    public $ignoreBots = true;
+
+    /**
+     * @var boolean
+     */
+    public $enabled = false;
+
+    /**
+     * @var array
+     */
+    public $countryMap = [];
+
+    /**
+     * @var array
+     */
+    public $ignoreSegments = [];
+
+    /**
+     * @var array
+     */
+    public $banners = [];
 
     // Public Methods
     // =========================================================================
@@ -36,11 +76,11 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules ()
     {
         return [
-            ['someAttribute', 'string'],
-            ['someAttribute', 'default', 'value' => 'Some Default'],
+            //[ 'someAttribute', 'string' ],
+            //[ 'someAttribute', 'default', 'value' => 'Some Default' ],
         ];
     }
 }

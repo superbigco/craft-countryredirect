@@ -10,10 +10,13 @@
 
 namespace superbig\countryredirect\services;
 
+use craft\feeds\GuzzleClient;
+use craft\helpers\FileHelper;
 use superbig\countryredirect\CountryRedirect;
 
 use Craft;
 use craft\base\Component;
+use superbig\countryredirect\models\Link;
 
 /**
  * @author    Superbig
@@ -51,7 +54,7 @@ class CountryRedirectService extends Component
     public function maybeRedirect ()
     {
         // Get the site URL config setting
-        $siteUrl        = craft()->config->get('siteUrl');
+        $siteUrl        = Craft::$app->config->general->siteUrl;
         $enabled        = $this->getSetting('enabled');
         $ignoreSegments = $this->getSetting('ignoreSegments');
         if ( !is_array($siteUrl) ) {
@@ -110,8 +113,9 @@ class CountryRedirectService extends Component
         $links               = [];
         $countryMap          = $this->getCountryMap();
         $overrideLocaleParam = $this->getOverrideLocaleParam();
+
         foreach ($locales as $locale) {
-            $link          = new CountryRedirect_LinkModel();
+            $link          = new Link();
             $localeSiteUrl = craft()->config->getLocalized('siteUrl', $locale->getId());
             $link->setAttribute('locale', $locale->getId());
             $link->setAttribute('locale_name', $locale->getName());
@@ -168,7 +172,7 @@ class CountryRedirectService extends Component
         }
         $cacheKey = 'countryRedirect-ip-' . $ip;
         // Check cache first
-        if ( $cacheRecord = craft()->cache->get($cacheKey) ) {
+        if ( $cacheRecord = Craft::$app->cache->get($cacheKey) ) {
             return $cacheRecord;
         }
         $info = $this->getInfoFromIp($ip);
@@ -183,19 +187,24 @@ class CountryRedirectService extends Component
     {
         if ( $ip ) {
             $ip = $this->getIpAddress();
+
             if ( $ip == '::1' || $ip == '127.0.0.1' ) {
                 return null;
             }
+
             $cacheKey = 'countryRedirect-info-' . $ip;
+
             // Check cache first
-            if ( $cacheRecord = craft()->cache->get($cacheKey) ) {
+            if ( $cacheRecord = Craft::$app->cache->get($cacheKey) ) {
                 return $cacheRecord;
             }
+
             try {
                 // This creates the Reader object, which should be reused across lookups.
                 $reader = new Reader($this->unpackedDatabasePath);
                 $record = $reader->country($ip);
-                craft()->cache->set($cacheKey, $record);
+
+                Craft::$app->cache->set($cacheKey, $record);
 
                 return $record;
             }
@@ -232,30 +241,39 @@ class CountryRedirectService extends Component
         return $ip;
     }
 
-    /*
-    *   Config
-    *
-    */
-    public function getSetting ($name)
+    /**
+     * @param $key
+     *
+     * @return mixed
+     */
+    public function getSetting ($key)
     {
         if ( !isset($this->config) ) {
-            $this->config = new CountryRedirect_ConfigModel();
+            $this->config = CountryRedirect::$plugin->getSettings();
         }
 
-        return $this->config->getSetting($name);
+        return $this->config->$key;
     }
 
+    /**
+     * @param null $url
+     *
+     * @return null|string
+     */
     private function appendRedirectedParamToUrl ($url = null)
     {
         $param = $this->getSetting('redirectedParam');
+
         if ( !$param ) {
             return $url;
         }
         $query     = $param . '=✓';
         $parsedUrl = parse_url($url);
+
         if ( empty($parsedUrl['path']) ) {
             $url .= '/';
         }
+
         $separator = empty($parsedUrl['query']) ? '?' : '&';
         $url       .= $separator . $query;
 
@@ -264,28 +282,35 @@ class CountryRedirectService extends Component
 
     public function downloadDatabase ()
     {
-        if ( !IOHelper::isWritable($this->localDatabasePathWithoutFilename) ) {
-            CountryRedirectPlugin::log('Database folder is not writeable: ' . $this->localDatabasePathWithoutFilename, LogLevel::Error);
+        if ( !FileHelper::isWritable($this->localDatabasePathWithoutFilename) ) {
+            Craft::error('Database folder is not writeable: ' . $this->localDatabasePathWithoutFilename, __METHOD__);
 
             return [
                 'error' => 'Database folder is not writeable: ' . $this->localDatabasePathWithoutFilename,
             ];
         }
-        $tempPath = rtrim(craft()->path->getTempPath(), '/') . '/' . 'countryredirect/';
+        $tempPath = Craft::$app->path->getTempPath() . DIRECTORY_SEPARATOR . 'countryredirect' . DIRECTORY_SEPARATOR;
+
         IOHelper::ensureFolderExists($tempPath);
+
         $tempFile = $tempPath . $this->localDatabaseFilename;
-        CountryRedirectPlugin::log('Download database to: ' . $this->localDatabasePath, LogLevel::Info);
+        Craft::info('Download database to: ' . $this->localDatabasePath, __METHOD__);
+
         try {
-            $guzzle   = new GuzzleClient();
-            $response = $guzzle->get($this->urls['country'])
-                               ->setResponseBody($tempFile)
-                               ->send();
+            $guzzle = new GuzzleClient();
+
+            $response = $guzzle
+                ->get($this->urls['country'])
+                ->setResponseBody($tempFile)
+                ->send();
+
             @unlink($this->localDatabasePath);
+
             IOHelper::ensureFolderExists($this->localDatabasePathWithoutFilename);
-            IOHelper::move($tempFile, $this->localDatabasePath);
+            FileHelper::move($tempFile, $this->localDatabasePath);
         }
         catch (\Exception $e) {
-            CountryRedirectPlugin::log('Failed to write downloaded database to: ' . $this->localDatabasePath . ' ' . $e->getMessage(), LogLevel::Error);
+            Craft::error('Failed to write downloaded database to: ' . $this->localDatabasePath . ' ' . $e->getMessage(), __METHOD__);
 
             return [
                 'error' => 'Failed to write downloaded database to file',
@@ -297,16 +322,20 @@ class CountryRedirectService extends Component
         ];
     }
 
+    /**
+     * @return array
+     */
     public function unpackDatabase ()
     {
         try {
             $guzzle         = new GuzzleClient();
-            $response       = $guzzle->get($this->urls['countryChecksum'])
-                                     ->send();
+            $response       = $guzzle
+                ->get($this->urls['countryChecksum'])
+                ->send();
             $remoteChecksum = $response->getBody($asString = true);
         }
         catch (\Exception $e) {
-            CountryRedirectPlugin::log('Was not able to get checksum from GeoLite url: ' . $this->urls['countryChecksum'], LogLevel::Error);
+            Craft::error('Was not able to get checksum from GeoLite url: ' . $this->urls['countryChecksum'], __METHOD__);
 
             return [
                 'error' => 'Failed to get remote checksum for Country database',
@@ -314,16 +343,16 @@ class CountryRedirectService extends Component
         }
         $result = gzdecode(file_get_contents($this->localDatabasePath));
         if ( md5($result) !== $remoteChecksum ) {
-            CountryRedirectPlugin::log('Remote checksum for Country database doesn\'t match downloaded database. Please try again or contact support.', LogLevel::Error);
+            Craft::error('Remote checksum for Country database doesn\'t match downloaded database. Please try again or contact support.', __METHOD__);
 
             return [
                 'error' => 'Remote checksum for Country database doesn\'t match downloaded database. Please try again or contact support.'
             ];
         }
-        CountryRedirectPlugin::log('Unpacking database to: ' . $this->unpackedDatabasePath, LogLevel::Info);
+        Craft::info('Unpacking database to: ' . $this->unpackedDatabasePath, __METHOD__);
         $write = file_put_contents($this->unpackedDatabasePath, $result);
         if ( !$write ) {
-            CountryRedirectPlugin::log('Was not able to write unpacked database to: ' . $this->unpackedDatabasePath, LogLevel::Error);
+            Craft::error('Was not able to write unpacked database to: ' . $this->unpackedDatabasePath, __METHOD__);
 
             return [
                 'error' => 'Was not able to write unpacked database to: ' . $this->unpackedDatabasePath,
@@ -336,9 +365,12 @@ class CountryRedirectService extends Component
         ];
     }
 
+    /**
+     * @return bool
+     */
     public function checkValidDb ()
     {
-        return IOHelper::fileExists($this->unpackedDatabasePath);
+        return @file_exists($this->unpackedDatabasePath);
     }
     /*
     *   Cookies
@@ -357,16 +389,27 @@ class CountryRedirectService extends Component
     //
     //     return false;
     // }
+    /**
+     * @return null
+     */
     protected function getCountryCookie ()
     {
         return $this->_getCookie($this->getSetting('cookieName'));
     }
 
+    /**
+     * @return null
+     */
     protected function getBannerCookie ()
     {
         return $this->_getCookie($this->getSetting('cookieNameBanner'));
     }
 
+    /**
+     * @param null $countryCode
+     *
+     * @return null
+     */
     protected function setCountryCookie ($countryCode = null)
     {
         $time = time() + 60 * 60 * 24 * 30;
@@ -375,6 +418,9 @@ class CountryRedirectService extends Component
         return $this->getCountryCookie();
     }
 
+    /**
+     *
+     */
     public function removeCountryCookie ()
     {
         $this->_setCookie($this->getSetting('cookieName'), null, -1);
@@ -401,12 +447,17 @@ class CountryRedirectService extends Component
      * get() lets you retrieve the value of a cookie.
      *
      * @param mixed $name
+     *
+     * @return null
      */
     private function _getCookie ($name)
     {
         return isset($_COOKIE[ $name ]) ? $_COOKIE[ $name ] : null;
     }
 
+    /**
+     * @return bool|mixed
+     */
     private function getCountryMap ()
     {
         // Get country map
@@ -420,6 +471,9 @@ class CountryRedirectService extends Component
         return $this->countryMap;
     }
 
+    /**
+     * @return mixed
+     */
     private function getOverrideLocaleParam ()
     {
         $overrideLocaleParam = $this->getSetting('overrideLocaleParam');
@@ -427,6 +481,9 @@ class CountryRedirectService extends Component
         return $overrideLocaleParam;
     }
 
+    /**
+     * @return int|null|string
+     */
     private function getCountryCode ()
     {
         $currentLocale = craft()->locale->id;
@@ -456,6 +513,11 @@ class CountryRedirectService extends Component
         return $countryCode;
     }
 
+    /**
+     * @param $countryCode
+     *
+     * @return bool|mixed|null
+     */
     private function getCountryLocale ($countryCode)
     {
         // Get country map
@@ -490,6 +552,11 @@ class CountryRedirectService extends Component
         return $countryLocale;
     }
 
+    /**
+     * @param null $countryLocale
+     *
+     * @return bool|mixed|null|string
+     */
     private function getRedirectUrl ($countryLocale = null)
     {
         // First check if the countryLocale is actually a arbitrary URL
@@ -498,7 +565,7 @@ class CountryRedirectService extends Component
 
             return $url;
         }
-        $siteUrl = craft()->config->get('siteUrl');
+        $siteUrl = Craft::$app->config->general->siteUrl;
         // Don't redirect if there's no site URL defined for this locale, or if the country locale matches the current locale
         $localeSiteUrl = isset($siteUrl[ $countryLocale ]) ? $siteUrl[ $countryLocale ] : null;
         $localeSiteUrl = $countryLocale != craft()->locale->id ? $localeSiteUrl : null;
@@ -523,8 +590,11 @@ class CountryRedirectService extends Component
         return $url;
     }
 
+    /**
+     * @return mixed
+     */
     public function getBrowserLanguages ()
     {
-        return craft()->request->getBrowserLanguages();
+        return Craft::$app->request->getAcceptableLanguages();
     }
 }

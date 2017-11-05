@@ -10,6 +10,7 @@
 
 namespace superbig\countryredirect\models;
 
+use craft\helpers\Template;
 use superbig\countryredirect\CountryRedirect;
 
 use Craft;
@@ -28,19 +29,67 @@ class Link extends Model
     /**
      * @var string
      */
-    public $someAttribute = 'Some Default';
+    public $locale      = '';
+    public $locale_name = '';
+    public $url         = '';
+
+    /**
+     * @var boolean
+     */
+    public $catchAll = false;
 
     // Public Methods
     // =========================================================================
 
     /**
+     * Use the ID as the string representation of locales.
+     *
+     * @return string
+     */
+    public function __toString ()
+    {
+        return $this->locale;
+    }
+
+    public function getLink ($options = [])
+    {
+        $defaultOptions = [
+            'title' => $this->getName(),
+        ];
+        $options        = array_merge($defaultOptions, $options);
+        $parts          = [
+            '<a href="' . $this->url . '"',
+        ];
+        if ( isset($options['class']) ) {
+            $parts[] = ' class="' . $options['class'] . '"';
+        }
+        $parts[] = '>';
+        $parts[] = $options['title'];
+        $parts[] = '</a>';
+
+        return Template::raw(implode('', $parts));
+    }
+
+    public function getName ()
+    {
+        return $this->locale_name;
+    }
+
+    public function getId ()
+    {
+        return $this->locale;
+    }
+
+    /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules ()
     {
         return [
-            ['someAttribute', 'string'],
-            ['someAttribute', 'default', 'value' => 'Some Default'],
+            [ 'locale', 'string' ],
+            [ 'locale_name', 'string' ],
+            [ 'url', 'string' ],
+            //[ 'someAttribute', 'default', 'value' => 'Some Default' ],
         ];
     }
 }

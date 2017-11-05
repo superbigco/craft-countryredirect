@@ -33,6 +33,8 @@ use yii\base\Event;
  * @since     2.0.0
  *
  * @property  CountryRedirectServiceService $countryRedirectService
+ *
+ * @method  Settings getSettings()
  */
 class CountryRedirect extends Plugin
 {
@@ -50,12 +52,12 @@ class CountryRedirect extends Plugin
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init ()
     {
         parent::init();
         self::$plugin = $this;
 
-        if (Craft::$app instanceof ConsoleApplication) {
+        if ( Craft::$app instanceof ConsoleApplication ) {
             $this->controllerNamespace = 'superbig\countryredirect\console\controllers';
         }
 
@@ -89,7 +91,7 @@ class CountryRedirect extends Plugin
             Plugins::class,
             Plugins::EVENT_AFTER_INSTALL_PLUGIN,
             function (PluginEvent $event) {
-                if ($event->plugin === $this) {
+                if ( $event->plugin === $this ) {
                 }
             }
         );
@@ -98,7 +100,7 @@ class CountryRedirect extends Plugin
             Craft::t(
                 'country-redirect',
                 '{name} plugin loaded',
-                ['name' => $this->name]
+                [ 'name' => $this->name ]
             ),
             __METHOD__
         );
@@ -110,7 +112,7 @@ class CountryRedirect extends Plugin
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel ()
     {
         return new Settings();
     }
@@ -118,7 +120,7 @@ class CountryRedirect extends Plugin
     /**
      * @inheritdoc
      */
-    protected function settingsHtml(): string
+    protected function settingsHtml (): string
     {
         return Craft::$app->view->renderTemplate(
             'country-redirect/settings',

@@ -9,3 +9,37 @@
  * @package   CountryRedirect
  * @since     2.0.0
  */
+.countryredirect-updater {}
+.countryredirect-updater__status {
+    display: none;
+}
+
+.country-redirect-db-warning {
+
+}
+.country-redirect-db-warning:before { font-family: 'Craft'; speak: none; -webkit-font-feature-settings: "liga", "dlig"; -moz-font-feature-settings: "liga=1, dlig=1"; -moz-font-feature-settings: "liga", "dlig"; -ms-font-feature-settings: "liga", "dlig"; -o-font-feature-settings: "liga", "dlig"; font-feature-settings: "liga", "dlig"; text-rendering: optimizeLegibility; font-weight: normal; font-variant: normal; text-transform: none; line-height: 1; direction: ltr; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; display: inline-block; text-align: center; font-style: normal; vertical-align: middle; word-wrap: normal !important; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; content: 'alert'; padding-right: 5px; }
+
+.countryredirect-updater__status.is-visible {
+}
+
+.countryredirect-updater__start {
+    margin-bottom: 10px;
+}
+
+.countryredirect-updater__spinner {
+    transition: max-width 0.25s ease-in-out;
+    max-width: 24px;
+}
+
+.is-done .countryredirect-updater__spinner {
+    max-width: 0;
+}
+
+.countryredirect-updater__status-text {
+    color: #a7a7a7;
+    line-height: 30px;
+}
+
+.has-error .countryredirect-updater__status-text {
+    color: red;
+}

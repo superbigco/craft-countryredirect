@@ -10,6 +10,7 @@
 
 namespace superbig\countryredirect\models;
 
+use craft\helpers\Template;
 use superbig\countryredirect\CountryRedirect;
 
 use Craft;
@@ -28,19 +29,59 @@ class Banner extends Model
     /**
      * @var string
      */
-    public $someAttribute = 'Some Default';
+    public $text = '';
+
+    public $url = null;
+
+    public $countryName = '';
+    public $locale      = '';
+    public $locale_name = '';
 
     // Public Methods
     // =========================================================================
 
     /**
+     * Use the ID as the string representation of locales.
+     *
+     * @return string
+     */
+    public function __toString ()
+    {
+        return $this->text;
+    }
+
+    public function getName ()
+    {
+        return $this->countryName;
+    }
+
+    public function getId ()
+    {
+        return $this->locale;
+    }
+
+    public function getUrl ()
+    {
+        return $this->url;
+    }
+
+    /**
+     * @return \Twig_Markup
+     */
+    public function getText ()
+    {
+        return Template::raw(Craft::t('country-redirect', $this->text, [ 'countryName' => $this->countryName, 'url' => $this->url, ]));
+    }
+
+
+    /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules ()
     {
         return [
-            ['someAttribute', 'string'],
-            ['someAttribute', 'default', 'value' => 'Some Default'],
+            [ 'someAttribute', 'string' ],
+            [ 'someAttribute', 'default', 'value' => 'Some Default' ],
         ];
     }
 }
