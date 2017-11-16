@@ -13,11 +13,11 @@
     var CountryRedirectUpdater = {
         steps: {
             download: {
-                action: 'countryRedirect/downloadDatabase',
+                action: 'country-redirect/default/download-database',
                 text: 'Downloading GeoLite database'
             },
             verify: {
-                action: 'countryRedirect/unpackDatabase',
+                action: 'country-redirect/default/unpack-database',
                 text: 'Unpacking and verifying database'
             },
         },

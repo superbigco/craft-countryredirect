@@ -122,10 +122,13 @@ class CountryRedirect extends Plugin
      */
     protected function settingsHtml (): string
     {
+        $validDb = $this->countryRedirectService->checkValidDb();
+
         return Craft::$app->view->renderTemplate(
             'country-redirect/settings',
             [
-                'settings' => $this->getSettings()
+                'settings' => $this->getSettings(),
+                'validDb'  => $validDb,
             ]
         );
     }

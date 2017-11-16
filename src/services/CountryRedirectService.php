@@ -10,8 +10,8 @@
 
 namespace superbig\countryredirect\services;
 
-use craft\feeds\GuzzleClient;
 use craft\helpers\FileHelper;
+use GuzzleHttp\Client;
 use superbig\countryredirect\CountryRedirect;
 
 use Craft;
@@ -291,23 +291,24 @@ class CountryRedirectService extends Component
         }
         $tempPath = Craft::$app->path->getTempPath() . DIRECTORY_SEPARATOR . 'countryredirect' . DIRECTORY_SEPARATOR;
 
-        IOHelper::ensureFolderExists($tempPath);
+        FileHelper::createDirectory($tempPath);
 
         $tempFile = $tempPath . $this->localDatabaseFilename;
         Craft::info('Download database to: ' . $this->localDatabasePath, __METHOD__);
 
         try {
-            $guzzle = new GuzzleClient();
+            $guzzle = new Client();
 
             $response = $guzzle
-                ->get($this->urls['country'])
-                ->setResponseBody($tempFile)
-                ->send();
+                ->get($this->urls['country'], [
+                    'sink' => $tempFile,
+                ]);
 
             @unlink($this->localDatabasePath);
 
-            IOHelper::ensureFolderExists($this->localDatabasePathWithoutFilename);
-            FileHelper::move($tempFile, $this->localDatabasePath);
+            FileHelper::createDirectory($this->localDatabasePathWithoutFilename);
+            copy($tempFile, $this->localDatabasePath);
+            @unlink($tempFile);
         }
         catch (\Exception $e) {
             Craft::error('Failed to write downloaded database to: ' . $this->localDatabasePath . ' ' . $e->getMessage(), __METHOD__);
@@ -328,11 +329,11 @@ class CountryRedirectService extends Component
     public function unpackDatabase ()
     {
         try {
-            $guzzle         = new GuzzleClient();
-            $response       = $guzzle
-                ->get($this->urls['countryChecksum'])
-                ->send();
-            $remoteChecksum = $response->getBody($asString = true);
+            $guzzle   = new Client();
+            $response = $guzzle
+                ->get($this->urls['countryChecksum']);
+
+            $remoteChecksum = (string) $response->getBody();
         }
         catch (\Exception $e) {
             Craft::error('Was not able to get checksum from GeoLite url: ' . $this->urls['countryChecksum'], __METHOD__);

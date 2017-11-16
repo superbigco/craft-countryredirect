@@ -16,12 +16,12 @@
 
 {% do view.registerAssetBundle("superbig\\countryredirect\\assetbundles\\countryredirect\\CountryRedirectAsset") %}
 
-{{ forms.textField({
+{{ forms.lightswitchField({
     label: 'Enabled',
     instructions: '',
     id: 'enabled',
     name: 'enabled',
-    value: settings['enabled']})
+    on: settings['enabled']})
 }}
 
 {% if not validDb %}

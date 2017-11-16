@@ -5,6 +5,7 @@
 
 # COMPOSER
 /vendor
+src/database
 
 # BUILD FILES
 /bower_components/*

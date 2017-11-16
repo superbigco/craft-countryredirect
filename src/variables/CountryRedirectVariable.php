@@ -24,16 +24,28 @@ class CountryRedirectVariable
     // Public Methods
     // =========================================================================
 
-    /**
-     * @param null $optional
-     * @return string
-     */
-    public function exampleVariable($optional = null)
+    public function getLinks ($settings = [])
     {
-        $result = "And away we go to the Twig template...";
-        if ($optional) {
-            $result = "I'm feeling optional today...";
-        }
-        return $result;
+        return CountryRedirect::$plugin->countryRedirectService->getLinks();
+    }
+
+    public function redirected ()
+    {
+        return CountryRedirect::$plugin->countryRedirectService->wasRedirected();
+    }
+
+    public function overridden ()
+    {
+        return CountryRedirect::$plugin->countryRedirectService->wasOverridden();
+    }
+
+    public function info ()
+    {
+        return CountryRedirect::$plugin->countryRedirectService->getInfo();
+    }
+
+    public function getBanner ()
+    {
+        return CountryRedirect::$plugin->countryRedirectService->getBanner();
     }
 }
