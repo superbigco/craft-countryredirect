@@ -12,6 +12,7 @@ namespace superbig\countryredirect\services;
 
 use craft\helpers\FileHelper;
 use GuzzleHttp\Client;
+use Jaybizzle\CrawlerDetect\CrawlerDetect;
 use superbig\countryredirect\CountryRedirect;
 
 use Craft;
