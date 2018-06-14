@@ -11,8 +11,8 @@
     "country redirect"
   ],
   "support": {
-    "docs": "https://github.com/sjelfull/craft-countryredirect/blob/master/README.md",
-    "issues": "https://github.com/sjelfull/craft-countryredirect/issues"
+    "docs": "https://github.com/superbigco/craft-countryredirect/blob/master/README.md",
+    "issues": "https://github.com/superbigco/craft-countryredirect/issues"
   },
   "license": "MIT",
   "authors": [
@@ -42,7 +42,7 @@
     "handle": "country-redirect",
     "hasCpSettings": true,
     "hasCpSection": false,
-    "changelogUrl": "https://raw.githubusercontent.com/sjelfull/craft-countryredirect/master/CHANGELOG.md",
+    "changelogUrl": "https://raw.githubusercontent.com/superbigco/craft-countryredirect/master/CHANGELOG.md",
     "class": "superbig\\countryredirect\\CountryRedirect"
   }
 }
