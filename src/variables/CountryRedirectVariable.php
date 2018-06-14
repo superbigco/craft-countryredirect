@@ -24,27 +24,27 @@ class CountryRedirectVariable
     // Public Methods
     // =========================================================================
 
-    public function getLinks ($settings = [])
+    public function getLinks()
     {
         return CountryRedirect::$plugin->countryRedirectService->getLinks();
     }
 
-    public function redirected ()
+    public function redirected()
     {
         return CountryRedirect::$plugin->countryRedirectService->wasRedirected();
     }
 
-    public function overridden ()
+    public function overridden()
     {
         return CountryRedirect::$plugin->countryRedirectService->wasOverridden();
     }
 
-    public function info ()
+    public function info()
     {
         return CountryRedirect::$plugin->countryRedirectService->getInfo();
     }
 
-    public function getBanner ()
+    public function getBanner()
     {
         return CountryRedirect::$plugin->countryRedirectService->getBanner();
     }

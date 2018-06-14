@@ -22,72 +22,48 @@ use craft\web\Controller;
  */
 class DefaultController extends Controller
 {
-
-    // Protected Properties
-    // =========================================================================
-
-    /**
-     * @var    bool|array Allows anonymous access to this controller's actions.
-     *         The actions must be in 'kebab-case'
-     * @access protected
-     */
-    protected $allowAnonymous = [ 'index', 'do-something' ];
-
     // Public Methods
     // =========================================================================
 
     /**
      * Handle a request going to our plugin's index action URL, e.g.: actions/countryRedirect
      */
-    public function actionDownloadDatabase ()
+    public function actionDownloadDatabase()
     {
-        $response = CountryRedirect::$plugin->countryRedirectService->downloadDatabase();
+        $response = CountryRedirect::$plugin->database->downloadDatabase();
 
-        if ( isset($response['error']) ) {
-            return $this->renderJSON($response['error']);
+        if (isset($response['error'])) {
+            return $this->asJson($response['error']);
         }
 
-        return $this->renderJSON($response);
+        return $this->asJson($response);
     }
 
-    public function actionUnpackDatabase ()
+    public function actionUnpackDatabase()
     {
-        $response = CountryRedirect::$plugin->countryRedirectService->unpackDatabase();
+        $response = CountryRedirect::$plugin->database->unpackDatabase();
 
-        if ( isset($response['error']) ) {
-            return $this->renderJSON($response['error']);
+        if (isset($response['error'])) {
+            return $this->asJson($response['error']);
         }
 
-        return $this->renderJSON($response);
+        return $this->asJson($response);
     }
 
-    public function actionUpdateDatabase ()
+    public function actionUpdateDatabase()
     {
-        $response = CountryRedirect::$plugin->countryRedirectService->downloadDatabase();
+        $response = CountryRedirect::$plugin->database->downloadDatabase();
 
-        if ( isset($response['error']) ) {
-            return $this->renderJSON($response['error']);
+        if (isset($response['error'])) {
+            return $this->asJson($response['error']);
         }
 
-        $response = CountryRedirect::$plugin->countryRedirectService->unpackDatabase();
+        $response = CountryRedirect::$plugin->database->unpackDatabase();
 
-        if ( isset($response['error']) ) {
-            return $this->renderJSON($response['error']);
+        if (isset($response['error'])) {
+            return $this->asJson($response['error']);
         }
 
-        return $this->renderJSON($response);
-    }
-
-    /**
-     * Return data to browser as JSON and end application.
-     *
-     * @param array $data
-     */
-    protected function renderJSON ($data)
-    {
-        header('Content-type: application/json');
-        echo json_encode($data);
-
-        return Craft::$app->end();
+        return $this->asJson($response);
     }
 }

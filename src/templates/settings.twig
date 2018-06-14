@@ -21,24 +21,26 @@
     instructions: '',
     id: 'enabled',
     name: 'enabled',
-    on: settings['enabled']})
-}}
+    on: settings['enabled']}) }}
 
 {% if not validDb %}
-    <p class="warning country-redirect-db-warning" data-db-warning>You need to download a copy of the MaxMind GeoLite database before using the plugin.</p>
+    <p class="warning country-redirect-db-warning" data-db-warning>You need to download a copy of the MaxMind GeoLite
+        database before using the plugin.</p>
 {% endif %}
 
-<p>The Geolocation database provided by MaxMind should be updated from time to time. You can either do this manually, or setup a cron job that calls the controller on a regular basis. MaxMind databases are updated on the first Tuesday of each month.</p>
+<p>The Geolocation database provided by MaxMind should be updated from time to time. You can either do this manually, or
+    setup a cron job that calls the controller on a regular basis. MaxMind databases are updated on the first Tuesday of
+    each month.</p>
 
 <hr>
 
 <h3>Update database manually</h3>
 
 <div class="countryredirect-updater" data-countryredirect-updater>
-    <button class="btn submit countryredirect-updater__start js-start" type="button">{{ validDb ? 'Update database' : 'Download database' }}</button>
-    <div class="countryredirect-updater__status js-status">
-        <div class="spinner countryredirect-updater__spinner js-spinner"></div>
-        <span class="countryredirect-updater__status-text js-statusText"></span>
+    <button class="btn submit countryredirect-updater__start js-start"
+            type="button">{{ validDb ? 'Update database' : 'Download database' }}</button>
+    <div class="countryredirect-updater__progress js-progress hidden">
+
     </div>
 </div>
 
@@ -46,11 +48,12 @@
 
 <h3>Cron setup</h3>
 
-<p>You can make a request to this url at a planned interval. Recommended interval is once every month, on the first Wednesday of the month.</p>
+<p>You can make a request to this url at a planned interval. Recommended interval is once every month, on the first
+    Wednesday of the month.</p>
 
 {{ forms.textareaField({
     label: 'Update link',
-    value: actionUrl('countryRedirect/updateDatabase'),
+    value: siteUrl('country-redirect/update-database'),
     rows: 1,
     disabled: true
 }) }}

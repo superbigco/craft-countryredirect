@@ -25,10 +25,16 @@ class Config extends Model
     // Public Properties
     // =========================================================================
 
-    /**
-     * @var string
-     */
-    public $someAttribute = 'Some Default';
+    public $overrideLocaleParam = 'selected-locale';
+    public $redirectedParam     = 'redirected';
+    public $cookieName          = 'countryRedirect';
+    public $cookieNameBanner    = 'countryRedirectBanner';
+    public $ignoreBots          = true;
+    public $enabled             = false;
+    public $countryMap          = [];
+    public $ignoreSegments      = [];
+    public $banners             = [];
+    public $ipAddress;
 
     // Public Methods
     // =========================================================================
@@ -39,8 +45,7 @@ class Config extends Model
     public function rules()
     {
         return [
-            ['someAttribute', 'string'],
-            ['someAttribute', 'default', 'value' => 'Some Default'],
+            [['overrideLocaleParam', 'redirectedParam', 'cookieName', 'cookieNameBanner'], 'string'],
         ];
     }
 }

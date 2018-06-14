@@ -25,6 +25,7 @@
 return [
 
     // This controls blah blah blah
-    "someAttribute" => true,
+    'overrideIp' => null,
+    'overrideIp' => null
 
 ];

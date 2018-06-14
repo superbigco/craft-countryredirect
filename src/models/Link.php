@@ -2,7 +2,7 @@
 /**
  * Country Redirect plugin for Craft CMS 3.x
  *
- * Easily redirect visitors to a locale based on their country of origin
+ * Easily redirect visitors to a site based on their country of origin
  *
  * @link      https://superbig.co
  * @copyright Copyright (c) 2017 Superbig
@@ -26,43 +26,35 @@ class Link extends Model
     // Public Properties
     // =========================================================================
 
-    /**
-     * @var string
-     */
-    public $locale      = '';
-    public $locale_name = '';
-    public $url         = '';
-
-    /**
-     * @var boolean
-     */
-    public $catchAll = false;
+    public $siteHandle = '';
+    public $siteName   = '';
+    public $url        = '';
+    public $catchAll   = false;
 
     // Public Methods
     // =========================================================================
 
     /**
-     * Use the ID as the string representation of locales.
+     * Use the ID as the string representation of siteHandle.
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
-        return $this->locale;
+        return $this->siteHandle;
     }
 
-    public function getLink ($options = [])
+    public function getLink($options = [])
     {
-        $defaultOptions = [
-            'title' => $this->getName(),
-        ];
-        $options        = array_merge($defaultOptions, $options);
-        $parts          = [
+        $options = array_merge(['title' => $this->getName()], $options);
+        $parts   = [
             '<a href="' . $this->url . '"',
         ];
-        if ( isset($options['class']) ) {
+
+        if (isset($options['class'])) {
             $parts[] = ' class="' . $options['class'] . '"';
         }
+
         $parts[] = '>';
         $parts[] = $options['title'];
         $parts[] = '</a>';
@@ -70,26 +62,25 @@ class Link extends Model
         return Template::raw(implode('', $parts));
     }
 
-    public function getName ()
+    public function getName()
     {
-        return $this->locale_name;
+        return $this->siteName;
     }
 
-    public function getId ()
+    public function getId()
     {
-        return $this->locale;
+        return $this->siteHandle;
     }
 
     /**
      * @inheritdoc
      */
-    public function rules ()
+    public function rules()
     {
         return [
-            [ 'locale', 'string' ],
-            [ 'locale_name', 'string' ],
-            [ 'url', 'string' ],
-            //[ 'someAttribute', 'default', 'value' => 'Some Default' ],
+            ['siteHandle', 'string'],
+            ['siteName', 'string'],
+            ['url', 'string'],
         ];
     }
 }

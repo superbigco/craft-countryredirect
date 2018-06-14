@@ -33,6 +33,11 @@ class Settings extends Model
     /**
      * @var boolean
      */
+    public $enableLogging = false;
+
+    /**
+     * @var boolean
+     */
     public $devMode = false;
 
     /**
@@ -53,50 +58,16 @@ class Settings extends Model
 
     /**
      * Override what is considered the users IP. Useful when testing locally, or when you want to debug
-     *
-     * @var null|string
      */
-    public $overrideIp = null;
-
-    /**
-     * @var string
-     */
+    public $overrideIp          = null;
     public $overrideLocaleParam = 'selected-locale';
-
-    /**
-     * @var false|string
-     */
-    public $redirectedParam = 'redirected';
-
-    /**
-     * @var string
-     */
-    public $cookieName = 'countryRedirect';
-
-    /**
-     * @var string
-     */
-    public $cookieNameBanner = 'countryRedirectBanner';
-
-    /**
-     * @var boolean
-     */
-    public $ignoreBots = true;
-
-    /**
-     * @var array
-     */
-    public $countryMap = [];
-
-    /**
-     * @var array
-     */
-    public $ignoreSegments = [];
-
-    /**
-     * @var array
-     */
-    public $banners = [];
+    public $redirectedParam     = 'redirected';
+    public $cookieName          = 'countryRedirect';
+    public $cookieNameBanner    = 'countryRedirectBanner';
+    public $ignoreBots          = true;
+    public $countryMap          = [];
+    public $ignoreSegments      = [];
+    public $banners             = [];
 
     // Public Methods
     // =========================================================================
@@ -104,7 +75,7 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules ()
+    public function rules()
     {
         return [
             //[ 'someAttribute', 'string' ],
