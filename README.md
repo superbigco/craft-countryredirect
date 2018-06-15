@@ -2,7 +2,7 @@
 
 Easily redirect visitors to a locale based on their country of origin
 
-![Screenshot](resources/icon.png)
+![Screenshot](resources/img/icon.png)
 
 ## Requirements
 
@@ -18,7 +18,7 @@ To install the plugin, follow these instructions.
 
 2. Then tell Composer to load the plugin:
 
-        composer require sjelfull/country-redirect
+        composer require superbig/craft-countryredirect
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Country Redirect.
 
