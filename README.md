@@ -1,6 +1,6 @@
 # Country Redirect plugin for Craft CMS 3.x
 
-Easily redirect visitors to a locale based on their country of origin
+Easily redirect visitors to a Craft site based on their country of origin
 
 ![Screenshot](resources/img/icon.png)
 
@@ -67,7 +67,7 @@ return [
         /*
          * Add any special URL segments you want to ignore
          * Eg. 'ignoreSegments' => [
-         *     'this/page/only/exists/in/one/locale',
+         *     'this/page/only/exists/in/one/site',
          *     'global-page'
          * ],
          */
@@ -100,7 +100,7 @@ return [
          *   '*' => 'default',
          * ]
          *
-         * If you within a country have different regional languages, you can map the different languages to locales.
+         * If you within a country have different regional languages, you can map the different languages to sites by their Site Handle.
          * Take Switzerland, with German, French, Italian and Romansh, as an example:
          *
          * 'countryMap'       => [
@@ -117,14 +117,14 @@ return [
         'countryMap'          => [ ],
 
         /*
-         * If you want to show a banner that prompts visitors to their matching locale instead of redirecting them,
+         * If you want to show a banner that prompts visitors to their matching site handle instead of redirecting them,
          * you can define these here.
          *
-         * The key here is the Craft locale id, not the country code. The variables {countryName} and {url} will
+         * The key here is the Craft Site Handle, not the country code. The variables {countryName} and {url} will
          * be replaced.
          *
          * 'banners' => [
-         *   'en_us' => 'It looks like your visiting from {countryName}. Do you <a href="{url}">want to visited the international site?</a>'
+         *   'frenchSite' => 'It looks like your visiting from {countryName}. Do you <a href="{url}">want to visited the international site?</a>'
          * ],
          */
         'banners'             => [ ],
