@@ -88,6 +88,15 @@ class CountryRedirect extends Plugin
         );
 
         Event::on(
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_CP_URL_RULES,
+            function(RegisterUrlRulesEvent $event) {
+                $event->rules['country-redirect/clear-logs'] = 'country-redirect/default/clear-logs';
+            }
+        );
+
+
+        Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
             function(Event $event) {

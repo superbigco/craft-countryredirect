@@ -48,11 +48,30 @@ class LogModel extends Model
         $model = new static();
         $model->setAttributes($record->getAttributes(), false);
 
+        if (is_string($model->snapshot)) {
+            $model->snapshot = @json_decode($model->snapshot, true);
+        }
+
         return $model;
     }
 
     // Public Methods
     // =========================================================================
+
+    public function getFromUrl()
+    {
+        return urldecode($this->getSnapshotValue('url'));
+    }
+
+    public function getTargetUrl()
+    {
+        return urldecode($this->getSnapshotValue('targetUrl'));
+    }
+
+    public function getCountry()
+    {
+        return $this->country;
+    }
 
     /**
      * @param $key
@@ -64,6 +83,12 @@ class LogModel extends Model
         return $this->snapshot[ $key ] ?? null;
     }
 
+    /**
+     * @param $key
+     * @param $data
+     *
+     * @return $this
+     */
     public function addSnapshotValue($key, $data)
     {
         if (!is_array($this->snapshot)) {

@@ -109,36 +109,12 @@ class CountryRedirectService extends Component
                 Craft::$app->getSession()->setFlash($redirectParam, true);
             }
 
-            $this->logRedirect($url);
+            if ($this->config->enableLogging) {
+                CountryRedirect::$plugin->log->logRedirect($url);
+            }
 
             return Craft::$app->getResponse()->redirect($url);
         }
-    }
-
-    public function logRedirect($targetUrl = null)
-    {
-        $log            = new LogModel();
-        $log->siteId    = Craft::$app->getSites()->currentSite->id;
-        $log->userAgent = Craft::$app->getRequest()->getUserAgent();
-        $log->ipAddress = $this->getIpAddress();
-
-        if ($user = Craft::$app->getUser()->getIdentity()) {
-            $log->userId = $user->id;
-        }
-
-        if ($info = $this->getInfoFromIp($log->ipAddress)) {
-            $log->addSnapshotValue('info', $info);
-        }
-
-        if ($targetUrl) {
-            try {
-                $log->addSnapshotValue('url', Craft::$app->getRequest()->getUrl());
-                $log->addSnapshotValue('targetUrl', $targetUrl);
-            } catch (InvalidConfigException $e) {
-            }
-        }
-
-        CountryRedirect::$plugin->log->saveRecord($log);
     }
 
     /**

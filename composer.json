@@ -24,7 +24,8 @@
   "require": {
     "craftcms/cms": "^3.0.0",
     "geoip2/geoip2": "^2.3",
-    "jaybizzle/crawler-detect": "1.*"
+    "jaybizzle/crawler-detect": "1.*",
+    "jasongrimes/paginator": "^1.0.0"
   },
   "repositories": [
     {

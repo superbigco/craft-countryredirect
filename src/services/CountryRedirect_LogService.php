@@ -10,6 +10,7 @@
 
 namespace superbig\countryredirect\services;
 
+use craft\commerce\models\Country;
 use craft\helpers\FileHelper;
 use GuzzleHttp\Client;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
@@ -36,9 +37,15 @@ class CountryRedirect_LogService extends Component
         parent::init();
     }
 
-    public function getAllLogs($offset, $limit = 20)
+    /**
+     * @param     $offset
+     * @param int $limit
+     *
+     * @return array|null
+     */
+    public function getAllLogs($offset = null, $limit = 20)
     {
-        $query = LogRecord::find();
+        $query = LogRecord::find()->orderBy('dateCreated desc');
 
         if ($offset !== null) {
             $query = $query
@@ -55,6 +62,47 @@ class CountryRedirect_LogService extends Component
         return array_map(function(LogRecord $record) {
             return LogModel::createFromRecord($record);
         }, $logs);
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getLogCount()
+    {
+        return (int)LogRecord::find()->count();
+    }
+
+    /**
+     * @param null $targetUrl
+     */
+    public function logRedirect($targetUrl = null)
+    {
+        $redirectService = CountryRedirect::$plugin->countryRedirectService;
+        $log             = new LogModel();
+        $log->siteId     = Craft::$app->getSites()->currentSite->id;
+        $request         = Craft::$app->getRequest();
+        $log->userAgent  = $request->getUserAgent();
+        $log->ipAddress  = $redirectService->getIpAddress();
+
+        if ($user = Craft::$app->getUser()->getIdentity()) {
+            $log->userId = $user->id;
+        }
+
+        if ($info = $redirectService->getInfoFromIp($log->ipAddress)) {
+            $log->addSnapshotValue('info', $info);
+            $log->country = $info->country->isoCode ?? null;
+        }
+
+        if ($targetUrl) {
+            try {
+                $log->addSnapshotValue('url', $request->getAbsoluteUrl());
+                $log->addSnapshotValue('targetUrl', $targetUrl);
+            } catch (InvalidConfigException $e) {
+            }
+        }
+
+        $this->saveRecord($log);
     }
 
     /**
@@ -92,5 +140,13 @@ class CountryRedirect_LogService extends Component
         $model->id = $record->id;
 
         return true;
+    }
+
+    /**
+     * @return int
+     */
+    public function clearLogs()
+    {
+        return LogRecord::deleteAll();
     }
 }

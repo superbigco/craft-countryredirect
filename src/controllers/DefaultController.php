@@ -66,4 +66,13 @@ class DefaultController extends Controller
 
         return $this->asJson($response);
     }
+
+    public function actionClearLogs()
+    {
+        Craft::$app->getSession()->setNotice(Craft::t('country-redirect', 'Cleared logs'));
+
+        CountryRedirect::$plugin->log->clearLogs();
+
+        return $this->redirect('utilities/country-redirect-log-utility');
+    }
 }

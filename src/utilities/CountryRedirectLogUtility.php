@@ -10,7 +10,10 @@
 
 namespace superbig\countryredirect\utilities;
 
+use craft\helpers\UrlHelper;
+use JasonGrimes\Paginator;
 use superbig\countryredirect\assetbundles\CountryRedirect\CountryRedirectAsset;
+use superbig\countryredirect\CountryRedirect;
 use superbig\payments\Payments;
 use superbig\payments\assetbundles\paymentsutilityutility\PaymentsUtilityUtilityAsset;
 
@@ -69,10 +72,19 @@ class CountryRedirectLogUtility extends Utility
     {
         Craft::$app->getView()->registerAssetBundle(CountryRedirectAsset::class);
 
+        $currentPage  = Craft::$app->getRequest()->getParam('page', 1);
+        $itemsPerPage = 30;
+        $count        = CountryRedirect::$plugin->log->getLogCount();
+        $offset       = ($currentPage - 1) * $itemsPerPage;
+        $urlPattern   = UrlHelper::cpUrl('utilities/country-redirect-log-utility?page=(:num)');
+        $paginator    = new Paginator($count, $itemsPerPage, $currentPage, $urlPattern);
+
         return Craft::$app->getView()->renderTemplate(
             'country-redirect/utilities/CountryRedirect_LogUtility',
             [
-                'logs' => [],
+                'logCount'  => CountryRedirect::$plugin->log->getLogCount(),
+                'logs'      => CountryRedirect::$plugin->log->getAllLogs($offset, $itemsPerPage),
+                'paginator' => $paginator,
             ]
         );
     }
