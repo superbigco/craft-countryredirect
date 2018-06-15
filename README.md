@@ -145,14 +145,16 @@ For a list of the ISO country codes, [check out this overview](http://www.nation
 <h1>Select country</h1>
 
 {% set titles = {
-	'en_us': 'Go to our US site',
-	'fr': 'Go to our French site',
-	'da': 'Go to our Danish site',
+    'default': 'Go to our US site',
+    'dutchSite': 'Go to our Dutch site',
+    'foreignSiteBranch': 'Go to our Danish site',
 } %}
 <nav class="nav">
-	{% for locale in craft.countryRedirect.getLinks() %}
-		{{locale.getLink({ title: titles[locale.getId()] })}}
-	{% endfor %}
+    <ul>
+        {% for link in craft.countryRedirect.getLinks() %}
+            <li>{{link.getLink({ title: titles[link.getId()] })}}</li>
+        {% endfor %}
+    </ul>
 </nav>
 ```
 
