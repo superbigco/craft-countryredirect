@@ -59,7 +59,7 @@ return [
         /*
          * The URL parameter that indicates that a user was redirect
          */
-        'redirectedParam' => 'redirected',
+        'redirectedParam'     => 'redirected',
         /*
          * Map a country's two-letter ISO code to a Craft Site Handle, and/or define a catch-all with a * asterix
          * Here is a list of ISO country codes: http://www.nationsonline.org/oneworld/country_code_list.htm
@@ -104,4 +104,5 @@ return [
          * Override the detected IP - useful for testing, or when no IP address can be detected
          */
         'overrideIp'          => null,
+    ],
 ];
