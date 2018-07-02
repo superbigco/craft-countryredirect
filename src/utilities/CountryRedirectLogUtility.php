@@ -14,8 +14,6 @@ use craft\helpers\UrlHelper;
 use JasonGrimes\Paginator;
 use superbig\countryredirect\assetbundles\CountryRedirect\CountryRedirectAsset;
 use superbig\countryredirect\CountryRedirect;
-use superbig\payments\Payments;
-use superbig\payments\assetbundles\paymentsutilityutility\PaymentsUtilityUtilityAsset;
 
 use Craft;
 use craft\base\Utility;
@@ -38,7 +36,7 @@ class CountryRedirectLogUtility extends Utility
      */
     public static function displayName(): string
     {
-        return Craft::t('payments', 'Country Redirect Log');
+        return Craft::t('country-redirect', 'Country Redirect Log');
     }
 
     /**
