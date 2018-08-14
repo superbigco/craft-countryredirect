@@ -378,7 +378,7 @@ class CountryRedirectService extends Component
      */
     private function getCountryCode()
     {
-        $currentLocale = Craft::$app->getSites()->currentSite->id;
+        $currentLocale = Craft::$app->getSites()->currentSite->handle;
         $countryCode   = null;
 
         // Get country map
