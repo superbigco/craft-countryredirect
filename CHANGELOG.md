@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.6] - 2019-01-24
+### Added
+- Added variable method to get banner cookie name
+
 ## [2.0.5] - 2019-01-24
 ### Fixed
 - Fixed error when there is no matching banner
