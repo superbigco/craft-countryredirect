@@ -88,9 +88,16 @@ class DefaultController extends Controller
 
     public function actionInfo()
     {
+        $bannerModel = CountryRedirect::$plugin->countryRedirectService->getBanner();
+
+        if ($bannerModel) {
+            $banner         = $bannerModel->toArray();
+            $banner['text'] = $bannerModel->getTextRaw();
+        }
+
         return $this->asJson([
             'info'   => CountryRedirect::$plugin->countryRedirectService->getInfo(),
-            'banner' => CountryRedirect::$plugin->countryRedirectService->getBanner(),
+            'banner' => $banner ?? null,
         ]);
     }
 }

@@ -65,9 +65,13 @@ class CountryRedirectService extends Component
             }
         }
 
-        if (!empty($ignoreSegments)) {
-            $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
+        if (strpos($path, 'country-redirect')) {
+            return false;
+        }
+
+        if (!empty($ignoreSegments)) {
             foreach ($ignoreSegments as $segment) {
                 if (strpos($path, $segment)) {
                     return false;
@@ -162,12 +166,15 @@ class CountryRedirectService extends Component
         $banners     = $this->config->banners;
         $info        = $this->getInfo();
         $redirectUrl = $this->getRedirectUrl($siteHandle);
+        $site        = Craft::$app->getSites()->getSiteByHandle($siteHandle);
 
         if (!$this->getBannerCookie() && $redirectUrl && isset($banners[ $siteHandle ])) {
             return new Banner([
                 'text'        => $banners[ $siteHandle ],
                 'url'         => $redirectUrl,
                 'countryName' => $info ? $info->name : null,
+                'siteHandle'  => $siteHandle,
+                'siteName'    => $site->name ?? null,
             ]);
         }
     }

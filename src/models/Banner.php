@@ -60,7 +60,12 @@ class Banner extends Model
      */
     public function getText()
     {
-        return Template::raw(Craft::t('country-redirect', $this->text, ['countryName' => $this->countryName, 'url' => $this->url,]));
+        return Template::raw($this->getTextRaw());
+    }
+
+    public function getTextRaw()
+    {
+        return Craft::t('country-redirect', $this->text, ['countryName' => $this->countryName, 'url' => $this->url]);
     }
 
 
