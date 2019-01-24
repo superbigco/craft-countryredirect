@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.5] - 2019-01-24
+### Fixed
+- Fixed error when there is no matching banner
+
 ## [2.0.4] - 2019-01-24
 ### Added
 - Added option for setting banner for matching country code

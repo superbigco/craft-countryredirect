@@ -161,6 +161,7 @@ class CountryRedirectService extends Component
 
     public function getBanner()
     {
+        $banner      = null;
         $countryCode = $this->getCountryCode();
         $siteHandle  = $this->getSiteHandle($countryCode);
         $banners     = $this->config->banners;
