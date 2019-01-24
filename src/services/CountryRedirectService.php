@@ -314,6 +314,14 @@ class CountryRedirectService extends Component
     }
 
     /**
+     * @return string
+     */
+    public function getBannerCookieName()
+    {
+        return $this->config->cookieNameBanner;
+    }
+
+    /**
      * @param null $countryCode
      *
      * @return null
@@ -415,6 +423,7 @@ class CountryRedirectService extends Component
         }
         // Get selected country from cookie
         $countryCode = $this->getCountryCookie();
+        
         // Still no code? Geo lookup it is.
         if (!$countryCode) {
             $countryCode = $this->getCountryFromIpAddress();
