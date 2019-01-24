@@ -15,7 +15,6 @@ use craft\services\Utilities;
 use superbig\countryredirect\console\controllers\UpdateController;
 use superbig\countryredirect\services\CountryRedirect_DatabaseService;
 use superbig\countryredirect\services\CountryRedirect_LogService;
-use superbig\countryredirect\services\CountryRedirectService as CountryRedirectServiceService;
 use superbig\countryredirect\services\CountryRedirectService;
 use superbig\countryredirect\utilities\CountryRedirectLogUtility;
 use superbig\countryredirect\variables\CountryRedirectVariable;
@@ -39,7 +38,7 @@ use yii\base\Event;
  * @package   CountryRedirect
  * @since     2.0.0
  *
- * @property  CountryRedirectServiceService   $countryRedirectService
+ * @property  CountryRedirectService          $countryRedirectService
  * @property  CountryRedirect_DatabaseService $database
  * @property   CountryRedirect_LogService     $log
  * @method  Settings getSettings()
@@ -70,6 +69,13 @@ class CountryRedirect extends Plugin
     {
         parent::init();
         self::$plugin = $this;
+
+        $this->setComponents([
+            'countryRedirectService' => CountryRedirectService::class,
+            'database'               => CountryRedirect_DatabaseService::class,
+            'log'                    => CountryRedirect_LogService::class,
+        ]);
+
 
         if (Craft::$app instanceof ConsoleApplication) {
             $this->controllerNamespace = 'superbig\countryredirect\console\controllers';
@@ -131,12 +137,6 @@ class CountryRedirect extends Plugin
             ),
             __METHOD__
         );
-
-        $this->setComponents([
-            'countryRedirectService' => CountryRedirectService::class,
-            'database'               => CountryRedirect_DatabaseService::class,
-            'log'                    => CountryRedirect_LogService::class,
-        ]);
 
         $request = Craft::$app->getRequest();
 
