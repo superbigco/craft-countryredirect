@@ -90,6 +90,7 @@ class CountryRedirect extends Plugin
             UrlManager::EVENT_REGISTER_SITE_URL_RULES,
             function(RegisterUrlRulesEvent $event) {
                 $event->rules['country-redirect/update-database'] = 'country-redirect/default/update-database';
+                $event->rules['country-redirect/info']            = 'country-redirect/default/info';
             }
         );
 

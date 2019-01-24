@@ -22,6 +22,16 @@ use craft\web\Controller;
  */
 class DefaultController extends Controller
 {
+    // Protected Properties
+    // =========================================================================
+
+    /**
+     * @var    bool|array Allows anonymous access to this controller's actions.
+     *         The actions must be in 'kebab-case'
+     * @access protected
+     */
+    protected $allowAnonymous = ['info'];
+
     // Public Methods
     // =========================================================================
 
@@ -74,5 +84,13 @@ class DefaultController extends Controller
         CountryRedirect::$plugin->log->clearLogs();
 
         return $this->redirect('utilities/country-redirect-log-utility');
+    }
+
+    public function actionInfo()
+    {
+        return $this->asJson([
+            'info'   => CountryRedirect::$plugin->countryRedirectService->getInfo(),
+            'banner' => CountryRedirect::$plugin->countryRedirectService->getBanner(),
+        ]);
     }
 }
