@@ -167,10 +167,18 @@ class CountryRedirectService extends Component
         $info        = $this->getInfo();
         $redirectUrl = $this->getRedirectUrl($siteHandle);
         $site        = Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        $bannersLc   = array_change_key_case($banners);
 
-        if (!$this->getBannerCookie() && $redirectUrl && isset($banners[ $siteHandle ])) {
+        if ($matchesCountry = array_key_exists(strtolower($countryCode), $bannersLc)) {
+            $banner = $bannersLc[ strtolower($countryCode) ] ?? null;
+        }
+        elseif ($matchesSiteHandle = isset($banners[ $siteHandle ])) {
+            $banner = $banners[ $siteHandle ] ?? null;
+        }
+
+        if (!$this->getBannerCookie() && $redirectUrl && $banner) {
             return new Banner([
-                'text'        => $banners[ $siteHandle ],
+                'text'        => $banner,
                 'url'         => $redirectUrl,
                 'countryName' => $info ? $info->name : null,
                 'siteHandle'  => $siteHandle,

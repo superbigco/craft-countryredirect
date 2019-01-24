@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.4] - 2019-01-24
+### Added
+- Added option for setting banner for matching country code
+
 ## [2.0.3] - 2019-01-24
 ### Added
 - Added endpoint to get Geo information + redirect banner
