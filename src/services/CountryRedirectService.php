@@ -12,6 +12,7 @@ namespace superbig\countryredirect\services;
 
 use craft\base\Element;
 use craft\helpers\FileHelper;
+use craft\helpers\UrlHelper;
 use craft\models\Site;
 use craft\web\Response;
 use GeoIp2\Database\Reader;
@@ -274,6 +275,7 @@ class CountryRedirectService extends Component
      */
     private function appendRedirectedParamToUrl($url = null)
     {
+        $url   = Craft::parseEnv($url);
         $param = $this->config->redirectedParam;
 
         if (!$param) {

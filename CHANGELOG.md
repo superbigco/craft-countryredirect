@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.7] - 2019-01-25
+### Changed
+- Country Redirect now requires Craft 3.1
+
+### Fixed
+- Aliases used in urls will now be parsed 
+
 ## [2.0.6] - 2019-01-24
 ### Added
 - Added variable method to get banner cookie name
