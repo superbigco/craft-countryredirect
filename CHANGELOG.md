@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.8] - 2019-01-29
+### Added
+- Added method to get banner cookie name + param from Twig 
+
+### Fixed
+- Added param when redirecting by clicking url in banner that sets the banner cookie
+
 ## [2.0.7] - 2019-01-25
 ### Changed
 - Country Redirect now requires Craft 3.1
