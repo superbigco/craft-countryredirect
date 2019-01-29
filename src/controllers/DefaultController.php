@@ -88,7 +88,9 @@ class DefaultController extends Controller
 
     public function actionInfo()
     {
-        $bannerModel = CountryRedirect::$plugin->countryRedirectService->getBanner();
+        $currentUrl        = Craft::$app->getRequest()->getParam('currentUrl');
+        $currentSiteHandle = Craft::$app->getRequest()->getParam('currentSiteHandle');
+        $bannerModel       = CountryRedirect::$plugin->countryRedirectService->getBanner($currentUrl, $currentSiteHandle);
 
         if ($bannerModel) {
             $banner         = $bannerModel->toArray();

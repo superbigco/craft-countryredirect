@@ -41,6 +41,8 @@ class CountryRedirectService extends Component
     /** @var Settings $config */
     protected $config;
     protected $countryMap;
+    private   $_matchedElement;
+    private   $_matchedElementRoute;
 
     public function init()
     {
@@ -171,14 +173,14 @@ class CountryRedirectService extends Component
         return Craft::$app->getRequest()->getParam($param);
     }
 
-    public function getBanner()
+    public function getBanner($currentUrl = null, $currentSiteHandle = null)
     {
         $banner      = null;
         $banners     = $this->config->banners;
         $countryCode = $this->getCountryCode();
         $siteHandle  = $this->getSiteHandle($countryCode);
         $info        = $this->getInfo();
-        $redirectUrl = $this->getRedirectUrl($siteHandle);
+        $redirectUrl = $this->getRedirectUrl($siteHandle, $currentUrl, $currentSiteHandle);
         $site        = Craft::$app->getSites()->getSiteByHandle($siteHandle);
         $bannersLc   = array_change_key_case($banners);
 
@@ -408,6 +410,77 @@ class CountryRedirectService extends Component
         $this->_setCookie($this->config->cookieName, null, -1);
     }
 
+    public function getMatchedElement($url = null)
+    {
+        if (!Craft::$app->getIsInitialized()) {
+            Craft::warning(__METHOD__ . "() was called before the application was fully initialized.\n" .
+                "Stack trace:\n" . App::backtrace(), __METHOD__);
+        }
+
+        if ($this->_matchedElement !== null) {
+            return $this->_matchedElement;
+        }
+
+        $request = Craft::$app->getRequest();
+
+        if (!$request->getIsSiteRequest()) {
+            return $this->_matchedElement = false;
+        }
+
+        $this->_getMatchedElementRoute($url ?? $request->getPathInfo());
+
+        return $this->_matchedElement;
+    }
+
+    /**
+     * Attempts to match a path with an element in the database.
+     *
+     * @param string $path
+     *
+     * @return mixed
+     */
+    private function _getMatchedElementRoute(string $path)
+    {
+        if ($this->_matchedElementRoute !== null) {
+            return $this->_matchedElementRoute;
+        }
+
+        $this->_matchedElement      = false;
+        $this->_matchedElementRoute = false;
+
+
+        if (Craft::$app->getIsInstalled() && Craft::$app->getRequest()->getIsSiteRequest()) {
+            $path = ltrim(parse_url($path, PHP_URL_PATH), DIRECTORY_SEPARATOR);
+
+            /** @var Element $element */
+            /** @noinspection PhpUnhandledExceptionInspection */
+            $element = Craft::$app->getElements()->getElementByUri($path, Craft::$app->getSites()->getCurrentSite()->id, true);
+
+            if ($element) {
+                $route = $element->getRoute();
+
+                if ($route) {
+                    if (is_string($route)) {
+                        $route = [$route, []];
+                    }
+
+                    $this->_matchedElement      = $element;
+                    $this->_matchedElementRoute = $route;
+                }
+            }
+        }
+
+        if (YII_DEBUG) {
+            Craft::debug([
+                'rule'   => 'Element URI: ' . $path,
+                'match'  => isset($element, $route),
+                'parent' => null,
+            ], __METHOD__);
+        }
+
+        return $this->_matchedElementRoute;
+    }
+
     /**
      * set() takes the same parameters as PHP's builtin setcookie();
      *
@@ -536,11 +609,12 @@ class CountryRedirectService extends Component
     }
 
     /**
-     * @param null $siteHandle
+     * @param null        $siteHandle
+     * @param null|string $currentUrl
      *
      * @return bool|mixed|null|string
      */
-    private function getRedirectUrl($siteHandle = null)
+    private function getRedirectUrl($siteHandle = null, $currentUrl = null, $currentSiteHandle = null)
     {
         // First check if the countryLocale is actually a arbitrary URL
         if ($url = filter_var($siteHandle, FILTER_VALIDATE_URL)) {
@@ -551,16 +625,18 @@ class CountryRedirectService extends Component
 
         $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
 
+        $currentSiteHandle = $currentSiteHandle ?? Craft::$app->getSites()->currentSite->handle;
+
         // Don't redirect if there's no site URL defined for this locale, or if the country locale matches the current locale
         $siteUrl = $site->baseUrl ?? null;
-        $siteUrl = $siteHandle != Craft::$app->getSites()->currentSite->handle ? $siteUrl : null;
+        $siteUrl = $siteHandle !== $currentSiteHandle ? $siteUrl : null;
 
         if (!$siteUrl) {
             return false;
         }
 
         // Try to get the matched element's local URL
-        $element = Craft::$app->getUrlManager()->getMatchedElement();
+        $element = $this->getMatchedElement($currentUrl);
 
         /** @var Element $element */
         if ($element && isset($element->url) && $element->url) {
