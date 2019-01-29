@@ -53,4 +53,9 @@ class CountryRedirectVariable
     {
         return CountryRedirect::$plugin->countryRedirectService->getBannerCookieName();
     }
+
+    public function getBannerParam()
+    {
+        return CountryRedirect::$plugin->countryRedirectService->getBannerParam();
+    }
 }

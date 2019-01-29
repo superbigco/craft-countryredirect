@@ -72,6 +72,10 @@ class CountryRedirectService extends Component
             return false;
         }
 
+        if ($this->wasRedirectedFromBanner()) {
+            $this->setBannerCookie();
+        }
+
         if (!empty($ignoreSegments)) {
             foreach ($ignoreSegments as $segment) {
                 if (strpos($path, $segment)) {
@@ -153,6 +157,13 @@ class CountryRedirectService extends Component
         return Craft::$app->getSession()->hasFlash($param) || Craft::$app->getRequest()->getParam($param);
     }
 
+    public function wasRedirectedFromBanner(): bool
+    {
+        $param = $this->config->bannerParam;
+
+        return Craft::$app->getSession()->hasFlash($param) || Craft::$app->getRequest()->getParam($param);
+    }
+
     public function wasOverridden()
     {
         $param = $this->config->overrideLocaleParam;
@@ -163,9 +174,9 @@ class CountryRedirectService extends Component
     public function getBanner()
     {
         $banner      = null;
+        $banners     = $this->config->banners;
         $countryCode = $this->getCountryCode();
         $siteHandle  = $this->getSiteHandle($countryCode);
-        $banners     = $this->config->banners;
         $info        = $this->getInfo();
         $redirectUrl = $this->getRedirectUrl($siteHandle);
         $site        = Craft::$app->getSites()->getSiteByHandle($siteHandle);
@@ -178,10 +189,10 @@ class CountryRedirectService extends Component
             $banner = $banners[ $siteHandle ] ?? null;
         }
 
-        if (!$this->getBannerCookie() && $redirectUrl && $banner) {
+        if ($redirectUrl && $banner && !$this->getBannerCookie()) {
             return new Banner([
                 'text'        => $banner,
-                'url'         => $redirectUrl,
+                'url'         => $this->appendBannerParamToUrl($redirectUrl),
                 'countryName' => $info ? $info->name : null,
                 'siteHandle'  => $siteHandle,
                 'siteName'    => $site->name ?? null,
@@ -300,6 +311,32 @@ class CountryRedirectService extends Component
     */
 
     /**
+     * @param null $url
+     *
+     * @return null|string
+     */
+    private function appendBannerParamToUrl($url = null)
+    {
+        $url   = Craft::parseEnv($url);
+        $param = $this->config->bannerParam;
+
+        if (!$param) {
+            return $url;
+        }
+
+        $query     = $param . '=✓';
+        $parsedUrl = parse_url($url);
+
+        if (empty($parsedUrl['path'])) {
+            $url .= '/';
+        }
+
+        $separator = empty($parsedUrl['query']) ? '?' : '&';
+
+        return $url . $separator . $query;
+    }
+
+    /**
      * @return null
      */
     protected function getCountryCookie()
@@ -324,6 +361,22 @@ class CountryRedirectService extends Component
     }
 
     /**
+     * @return mixed
+     */
+    public function getOverrideLocaleParam()
+    {
+        return $this->config->overrideLocaleParam;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBannerParam()
+    {
+        return $this->config->bannerParam;
+    }
+
+    /**
      * @param null $countryCode
      *
      * @return null
@@ -334,6 +387,17 @@ class CountryRedirectService extends Component
         $this->_setCookie($this->config->cookieName, $countryCode, $time);
 
         return $this->getCountryCookie();
+    }
+
+    /**
+     * @return null
+     */
+    protected function setBannerCookie()
+    {
+        $time = time() + 60 * 60 * 24 * 30;
+        $this->_setCookie($this->config->cookieNameBanner, true, $time);
+
+        return $this->getBannerCookie();
     }
 
     /**
@@ -389,14 +453,6 @@ class CountryRedirectService extends Component
         }
 
         return $this->countryMap;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getOverrideLocaleParam()
-    {
-        return $this->config->overrideLocaleParam;
     }
 
     /**
