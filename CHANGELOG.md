@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.10] - 2019-01-29
+### Fixed
+- Fixed path checking when matching element route
+
 ## [2.0.9] - 2019-01-29
 ### Added
 - Added way to pass current site and handle to info endpoint

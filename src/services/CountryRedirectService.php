@@ -22,6 +22,7 @@ use superbig\countryredirect\CountryRedirect;
 
 use Craft;
 use craft\base\Component;
+use superbig\countryredirect\helpers\CountryRedirectHelper;
 use superbig\countryredirect\models\Banner;
 use superbig\countryredirect\models\Link;
 use superbig\countryredirect\models\LogModel;
