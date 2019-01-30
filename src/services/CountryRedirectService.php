@@ -450,7 +450,7 @@ class CountryRedirectService extends Component
 
 
         if (Craft::$app->getIsInstalled() && Craft::$app->getRequest()->getIsSiteRequest()) {
-            $path = ltrim(parse_url($path, PHP_URL_PATH), DIRECTORY_SEPARATOR);
+            $path = rtrim(ltrim(parse_url($path, PHP_URL_PATH), DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR);
 
             /** @var Element $element */
             /** @noinspection PhpUnhandledExceptionInspection */
