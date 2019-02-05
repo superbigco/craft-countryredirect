@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.11] - 2019-02-05
+### Fixed
+- Fixed exception when plugin was run too early
+
 ## [2.0.10] - 2019-01-29
 ### Fixed
 - Fixed path checking when matching element route

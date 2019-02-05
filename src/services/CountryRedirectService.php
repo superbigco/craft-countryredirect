@@ -11,6 +11,7 @@
 namespace superbig\countryredirect\services;
 
 use craft\base\Element;
+use craft\helpers\App;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\Site;

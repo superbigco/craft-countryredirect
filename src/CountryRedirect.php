@@ -11,6 +11,7 @@
 namespace superbig\countryredirect;
 
 use craft\events\RegisterComponentTypesEvent;
+use craft\helpers\UrlHelper;
 use craft\services\Utilities;
 use superbig\countryredirect\console\controllers\UpdateController;
 use superbig\countryredirect\services\CountryRedirect_DatabaseService;
@@ -85,24 +86,58 @@ class CountryRedirect extends Plugin
             ];
         }
 
+        $this->installEventListeners();
+
+        Craft::info(
+            Craft::t(
+                'country-redirect',
+                '{name} plugin loaded',
+                ['name' => $this->name]
+            ),
+            __METHOD__
+        );
+    }
+
+    public function installEventListeners()
+    {
         Event::on(
-            UrlManager::class,
-            UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-            function(RegisterUrlRulesEvent $event) {
-                $event->rules['country-redirect/update-database'] = 'country-redirect/default/update-database';
-                $event->rules['country-redirect/info']            = 'country-redirect/default/info';
+            Plugins::class,
+            Plugins::EVENT_AFTER_INSTALL_PLUGIN,
+            function(PluginEvent $event) {
+                if ($event->plugin === $this) {
+                    $request = Craft::$app->getRequest();
+
+                    if ($request->isCpRequest) {
+                        $url = UrlHelper::cpUrl('settings/plugins/country-redirect');
+
+                        Craft::$app->getResponse()->redirect($url)->send();
+                    }
+                }
             }
         );
 
         Event::on(
-            UrlManager::class,
-            UrlManager::EVENT_REGISTER_CP_URL_RULES,
-            function(RegisterUrlRulesEvent $event) {
-                $event->rules['country-redirect/clear-logs'] = 'country-redirect/default/clear-logs';
+            Plugins::class,
+            Plugins::EVENT_AFTER_LOAD_PLUGINS,
+            function() {
+                // Install these only after all other plugins have loaded
+                $request = Craft::$app->getRequest();
+                $this->installGlobalEventListeners();
+
+                if ($request->getIsSiteRequest() && !$request->getIsConsoleRequest()) {
+                    $this->installSiteEventListeners();
+                    $this->handleSiteRequest();
+                }
+
+                if ($request->getIsCpRequest() && !$request->getIsConsoleRequest()) {
+                    $this->installCpEventListeners();
+                }
             }
         );
+    }
 
-
+    public function installGlobalEventListeners()
+    {
         Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
@@ -110,6 +145,17 @@ class CountryRedirect extends Plugin
                 /** @var CraftVariable $variable */
                 $variable = $event->sender;
                 $variable->set('countryRedirect', CountryRedirectVariable::class);
+            }
+        );
+    }
+
+    public function installCpEventListeners()
+    {
+        Event::on(
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_CP_URL_RULES,
+            function(RegisterUrlRulesEvent $event) {
+                $event->rules['country-redirect/clear-logs'] = 'country-redirect/default/clear-logs';
             }
         );
 
@@ -120,30 +166,23 @@ class CountryRedirect extends Plugin
                 $event->types[] = CountryRedirectLogUtility::class;
             }
         );
+    }
 
+    public function installSiteEventListeners()
+    {
         Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_INSTALL_PLUGIN,
-            function(PluginEvent $event) {
-                if ($event->plugin === $this) {
-                }
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_SITE_URL_RULES,
+            function(RegisterUrlRulesEvent $event) {
+                $event->rules['country-redirect/update-database'] = 'country-redirect/default/update-database';
+                $event->rules['country-redirect/info']            = 'country-redirect/default/info';
             }
         );
+    }
 
-        Craft::info(
-            Craft::t(
-                'country-redirect',
-                '{name} plugin loaded',
-                ['name' => $this->name]
-            ),
-            __METHOD__
-        );
-
-        $request = Craft::$app->getRequest();
-
-        if ($request->getIsSiteRequest() && !$request->getIsLivePreview()) {
-            $this->countryRedirectService->maybeRedirect();
-        }
+    public function handleSiteRequest()
+    {
+        self::$plugin->countryRedirectService->maybeRedirect();
     }
 
     // Protected Methods
