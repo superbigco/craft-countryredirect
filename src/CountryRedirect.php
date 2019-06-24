@@ -31,6 +31,7 @@ use craft\web\twig\variables\CraftVariable;
 use craft\events\RegisterUrlRulesEvent;
 
 use yii\base\Event;
+use craft\web\Application as WebApplication;
 
 /**
  * Class CountryRedirect
@@ -124,9 +125,12 @@ class CountryRedirect extends Plugin
                 $request = Craft::$app->getRequest();
                 $this->installGlobalEventListeners();
 
+                Craft::$app->on(WebApplication::EVENT_INIT, function () {
+                    $this->handleSiteRequest();
+                });
+
                 if ($request->getIsSiteRequest() && !$request->getIsConsoleRequest()) {
                     $this->installSiteEventListeners();
-                    $this->handleSiteRequest();
                 }
 
                 if ($request->getIsCpRequest() && !$request->getIsConsoleRequest()) {
