@@ -58,7 +58,6 @@ class CountryRedirect extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $version       = '2.0.0';
     public $schemaVersion = '2.0.0';
 
     // Public Methods
@@ -125,8 +124,10 @@ class CountryRedirect extends Plugin
                 $request = Craft::$app->getRequest();
                 $this->installGlobalEventListeners();
 
-                Craft::$app->on(WebApplication::EVENT_INIT, function () {
-                    $this->handleSiteRequest();
+                Craft::$app->on(WebApplication::EVENT_INIT, function() use ($request) {
+                    if ($request->getIsSiteRequest() && !$request->getIsConsoleRequest()) {
+                        $this->handleSiteRequest();
+                    }
                 });
 
                 if ($request->getIsSiteRequest() && !$request->getIsConsoleRequest()) {
