@@ -373,6 +373,14 @@ class CountryRedirectService extends Component
     }
 
     /**
+     * @return string
+     */
+    public function getRedirectedParam()
+    {
+        return $this->config->redirectedParam;
+    }
+
+    /**
      * @return mixed
      */
     public function getBannerParam()

@@ -10,6 +10,7 @@
 
 namespace superbig\countryredirect\variables;
 
+use craft\helpers\UrlHelper;
 use superbig\countryredirect\CountryRedirect;
 
 use Craft;
@@ -57,5 +58,16 @@ class CountryRedirectVariable
     public function getBannerParam()
     {
         return CountryRedirect::$plugin->countryRedirectService->getBannerParam();
+    }
+
+    public function appendOverrideParam(string $url)
+    {
+        $overrideLocaleParam = CountryRedirect::$plugin->countryRedirectService->getOverrideLocaleParam();
+        $redirectedParam     = CountryRedirect::$plugin->countryRedirectService->getRedirectedParam();
+
+        return UrlHelper::siteUrl($url, [
+            $overrideLocaleParam => '✓',
+            $redirectedParam     => null,
+        ]);
     }
 }
