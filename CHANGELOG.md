@@ -9,7 +9,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Added setting for including existing query arguments when redirecting
 
 ### Fixed
-- Country codes set in the config file is now case insensitive 
+- Country codes set in the config file is now case insensitive
+
+### Changed
+- Tweaked console output when updating the database 
 
 ## [2.0.13] - 2019-08-19
 ### Added
