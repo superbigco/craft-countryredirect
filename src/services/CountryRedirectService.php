@@ -582,7 +582,8 @@ class CountryRedirectService extends Component
     private function getSiteHandle($countryCode)
     {
         // Get country map
-        $countryMap = $this->getCountryMap();
+        $countryMap  = $this->getCountryMap();
+        $countryCode = $this->_normalizeCountryCode($countryCode);
 
         // Get country locale
         if (isset($countryMap[ $countryCode ])) {
@@ -668,5 +669,10 @@ class CountryRedirectService extends Component
     public function getBrowserLanguages()
     {
         return Craft::$app->request->getAcceptableLanguages();
+    }
+
+    private function _normalizeCountryCode($countryCode = null)
+    {
+        return \strtolower($countryCode);
     }
 }
