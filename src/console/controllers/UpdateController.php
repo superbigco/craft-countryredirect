@@ -38,23 +38,29 @@ class UpdateController extends Controller
     {
         $service = CountryRedirect::$plugin->database;
         $steps   = [
-            'downloadDatabase',
-            'unpackDatabase',
+            'downloadDatabase' => 'Downloaded database',
+            'unpackDatabase'   => 'Unpacked database',
         ];
 
-        foreach ($steps as $step) {
-            if (method_exists($service, $step)) {
-                $response = $service->$step();
+        $currentStep = 1;
+        foreach ($steps as $key => $step) {
+            if (method_exists($service, $key)) {
+                $response = $service->$key();
 
                 if (isset($response['error'])) {
-                    $this->stdout('Error: ' . $response['error'] . PHP_EOL);
+                    $this->stdout('Error: ' . $response['error'] . PHP_EOL, Console::FG_RED);
 
                     return ExitCode::UNSPECIFIED_ERROR;
                 }
 
-                $this->stdout("Step {$step} was successful" . PHP_EOL);
+                Console::updateProgress($currentStep, 2, "{$step}");
             }
+
+            $currentStep++;
         }
+
+        Console::endProgress();
+        $this->stdout("Finished update" . PHP_EOL, Console::FG_GREEN);
 
         return ExitCode::OK;
     }
