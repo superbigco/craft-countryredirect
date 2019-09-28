@@ -47,6 +47,8 @@ use craft\web\Application as WebApplication;
  */
 class CountryRedirect extends Plugin
 {
+    use ServicesTrait;
+
     // Static Properties
     // =========================================================================
 
