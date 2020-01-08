@@ -82,10 +82,6 @@ class CountryRedirect extends Plugin
 
         if (Craft::$app instanceof ConsoleApplication) {
             $this->controllerNamespace = 'superbig\countryredirect\console\controllers';
-
-            Craft::$app->controllerMap['country-redirect'] = [
-                'class' => UpdateController::class,
-            ];
         }
 
         $this->installEventListeners();
