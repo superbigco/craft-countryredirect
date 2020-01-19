@@ -17,8 +17,8 @@
 {% do view.registerAssetBundle("superbig\\countryredirect\\assetbundles\\countryredirect\\CountryRedirectAsset") %}
 
 {{ forms.lightswitchField({
-    label: 'Enabled',
-    instructions: '',
+    label: 'Enable redirect',
+    instructions: 'This enables automatic redirects by the plugin if there is a valid MaxMind database.',
     id: 'enabled',
     name: 'enabled',
     on: settings['enabled']}) }}

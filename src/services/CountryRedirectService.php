@@ -55,6 +55,7 @@ class CountryRedirectService extends Component
 
     /**
      * @return Response|bool
+     * @throws \craft\errors\MissingComponentException
      */
     public function maybeRedirect()
     {
@@ -622,6 +623,7 @@ class CountryRedirectService extends Component
     /**
      * @param null        $siteHandle
      * @param null|string $currentUrl
+     * @param null        $currentSiteHandle
      *
      * @return bool|mixed|null|string
      */
