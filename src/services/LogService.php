@@ -27,7 +27,7 @@ use superbig\countryredirect\records\LogRecord;
  * @package   CountryRedirect
  * @since     2.0.0
  */
-class CountryRedirect_LogService extends Component
+class LogService extends Component
 {
     // Public Methods
     // =========================================================================

@@ -30,6 +30,13 @@
     name: 'enableLogging',
     on: settings['enableLogging']}) }}
 
+{{ forms.textField({
+    label: 'MaxMind License Key',
+    instructions: 'Get or generate a license key from the [MaxMind account area](https://www.maxmind.com/en/account/login) -> Services -> My License Key',
+    id: 'enabled',
+    name: 'enabled',
+    on: settings['enabled']}) }}
+
 {% if not validDb %}
     <p class="warning country-redirect-db-warning" data-db-warning>You need to download a copy of the MaxMind GeoLite
         database before using the plugin.</p>

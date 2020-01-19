@@ -10,6 +10,7 @@
 
 namespace superbig\countryredirect\models;
 
+use craft\helpers\FileHelper;
 use superbig\countryredirect\CountryRedirect;
 
 use Craft;
@@ -59,16 +60,25 @@ class Settings extends Model
     /**
      * Override what is considered the users IP. Useful when testing locally, or when you want to debug
      */
-    public $overrideIp          = null;
-    public $overrideLocaleParam = 'selected-locale';
-    public $redirectedParam     = 'redirected';
-    public $bannerParam         = 'fromBanner';
-    public $cookieName          = 'countryRedirect';
-    public $cookieNameBanner    = 'countryRedirectBanner';
-    public $ignoreBots          = true;
-    public $countryMap          = [];
-    public $ignoreSegments      = [];
-    public $banners             = [];
+    public $overrideIp           = null;
+    public $overrideLocaleParam  = 'selected-locale';
+    public $redirectedParam      = 'redirected';
+    public $bannerParam          = 'fromBanner';
+    public $cookieName           = 'countryRedirect';
+    public $cookieNameBanner     = 'countryRedirectBanner';
+    public $licenseKey           = '';
+    public $ignoreBots           = true;
+    public $countryMap           = [];
+    public $ignoreSegments       = [];
+    public $banners              = [];
+    public $dbPath;
+    public $tempPath;
+    public $accountAreaUrl       = 'https://www.maxmind.com/en/account';
+    public $cityDbDownloadUrl    = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz';
+    public $countryDbDownloadUrl = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz';
+    public $countryDbChecksumUrl = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.md5';
+    public $cityDbFilename       = 'GeoLite2-City.mmdb';
+    public $countryDbFilename    = 'GeoLite2-Country.mmdb';
 
     // Public Methods
     // =========================================================================
@@ -82,5 +92,73 @@ class Settings extends Model
             //[ 'someAttribute', 'string' ],
             //[ 'someAttribute', 'default', 'value' => 'Some Default' ],
         ];
+    }
+
+    public function getCountryDownloadUrl()
+    {
+        return "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&suffix=tar.gz&license_key={$this->licenseKey}";
+    }
+
+    public function getCountryChecksumDownloadUrl()
+    {
+        return "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&suffix=tar.gz.md5&license_key={$this->licenseKey}";
+    }
+
+    public function getCityDownloadUrl()
+    {
+        return "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&suffix=tar.gz&license_key={$this->licenseKey}";
+    }
+
+    public function getCityDbPath($isTempPath = false)
+    {
+        if ($isTempPath) {
+            return $this->getTempPath($this->cityDbFilename);
+        }
+
+        return $this->getDbPath($this->cityDbFilename);
+    }
+
+    public function getCountryDbPath($isTempPath = false)
+    {
+        if ($isTempPath) {
+            return $this->getTempPath($this->countryDbFilename);
+        }
+
+        return $this->getDbPath($this->countryDbFilename);
+    }
+
+    public function getDbPath($filename = null, $createDirectory = false)
+    {
+        $dbPath = $this->dbPath;
+
+        if (empty($dbPath)) {
+            $dbPath = Craft::$app->getPath()->getStoragePath() . \DIRECTORY_SEPARATOR . 'countryredirect';
+        }
+
+        if ($createDirectory) {
+            FileHelper::createDirectory($dbPath);
+        }
+
+        return FileHelper::normalizePath($dbPath . \DIRECTORY_SEPARATOR . $filename);
+    }
+
+    public function getTempPath($filename = null, $createDirectory = true)
+    {
+        $tempPath = $this->tempPath;
+
+        if (empty($tempPath)) {
+            $tempPath = Craft::$app->getPath()->getTempPath() . '/countryredirect/';
+        }
+
+        if ($createDirectory) {
+            FileHelper::createDirectory($tempPath);
+        }
+
+        return FileHelper::normalizePath($tempPath . \DIRECTORY_SEPARATOR . $filename);
+    }
+
+    public function hasValidLicenseKey()
+    {
+        return !empty($this->licenseKey);
     }
 }

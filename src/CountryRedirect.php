@@ -14,8 +14,8 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\UrlHelper;
 use craft\services\Utilities;
 use superbig\countryredirect\console\controllers\UpdateController;
-use superbig\countryredirect\services\CountryRedirect_DatabaseService;
-use superbig\countryredirect\services\CountryRedirect_LogService;
+use superbig\countryredirect\services\DatabaseService;
+use superbig\countryredirect\services\LogService;
 use superbig\countryredirect\services\CountryRedirectService;
 use superbig\countryredirect\utilities\CountryRedirectLogUtility;
 use superbig\countryredirect\variables\CountryRedirectVariable;
@@ -40,9 +40,9 @@ use craft\web\Application as WebApplication;
  * @package   CountryRedirect
  * @since     2.0.0
  *
- * @property  CountryRedirectService          $countryRedirectService
- * @property  CountryRedirect_DatabaseService $database
- * @property   CountryRedirect_LogService     $log
+ * @property  CountryRedirectService $countryRedirectService
+ * @property  DatabaseService        $database
+ * @property  LogService             $log
  * @method  Settings getSettings()
  */
 class CountryRedirect extends Plugin
@@ -75,8 +75,8 @@ class CountryRedirect extends Plugin
 
         $this->setComponents([
             'countryRedirectService' => CountryRedirectService::class,
-            'database'               => CountryRedirect_DatabaseService::class,
-            'log'                    => CountryRedirect_LogService::class,
+            'database'               => DatabaseService::class,
+            'log'                    => LogService::class,
         ]);
 
 
@@ -204,7 +204,7 @@ class CountryRedirect extends Plugin
      */
     protected function settingsHtml(): string
     {
-        $validDb = $this->database->checkValidDb();
+        $validDb = $this->getDatabase()->checkValidDb();
 
         return Craft::$app->view->renderTemplate(
             'country-redirect/settings',

@@ -36,13 +36,16 @@ class UpdateController extends Controller
      */
     public function actionUpdate()
     {
-        $service = CountryRedirect::$plugin->database;
-        $steps   = [
+        $service     = CountryRedirect::$plugin->getDatabase();
+        $steps       = [
+            'checkLicenseKey'  => 'Checking license key',
             'downloadDatabase' => 'Downloaded database',
             'unpackDatabase'   => 'Unpacked database',
         ];
-
         $currentStep = 1;
+
+        $this->stdout("> Starting update" . PHP_EOL, Console::FG_GREEN);
+
         foreach ($steps as $key => $step) {
             if (method_exists($service, $key)) {
                 $response = $service->$key();
@@ -53,14 +56,14 @@ class UpdateController extends Controller
                     return ExitCode::UNSPECIFIED_ERROR;
                 }
 
-                Console::updateProgress($currentStep, 2, "{$step}");
+                Console::updateProgress($currentStep, 3, "{$step}");
             }
 
             $currentStep++;
         }
 
         Console::endProgress();
-        $this->stdout("Finished update" . PHP_EOL, Console::FG_GREEN);
+        $this->stdout("> Finished update" . PHP_EOL, Console::FG_GREEN);
 
         return ExitCode::OK;
     }

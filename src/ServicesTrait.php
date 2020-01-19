@@ -10,10 +10,9 @@
 
 namespace superbig\countryredirect;
 
-use superbig\countryredirect\services\CountryRedirect_DatabaseService;
-use superbig\countryredirect\services\CountryRedirect_LogService;
+use superbig\countryredirect\services\DatabaseService;
+use superbig\countryredirect\services\LogService;
 use superbig\countryredirect\services\CountryRedirectService;
-use superbig\shippingzones\services\LogService;
 
 /**
  * Class CountryRedirect
@@ -22,9 +21,9 @@ use superbig\shippingzones\services\LogService;
  * @package   CountryRedirect
  * @since     2.0.0
  *
- * @property  CountryRedirectService          $countryRedirectService
- * @property  CountryRedirect_DatabaseService $database
- * @property   CountryRedirect_LogService     $log
+ * @property  CountryRedirectService $countryRedirectService
+ * @property  DatabaseService        $database
+ * @property   LogService            $log
  */
 trait ServicesTrait
 {
@@ -37,7 +36,7 @@ trait ServicesTrait
     }
 
     /**
-     * @return CountryRedirect_DatabaseService
+     * @return DatabaseService
      */
     public function getDatabase()
     {
