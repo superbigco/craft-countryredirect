@@ -169,7 +169,7 @@ class DatabaseService extends Component
 
             // Verify checksum
             if (md5(file_get_contents($countryDbPath)) !== $remoteChecksum) {
-                $error = $this->formatErrorMessage('Remote checksum for Country database doesn\'t match downloaded database. Please try again or contact support.',);
+                $error = $this->formatErrorMessage('Remote checksum for Country database doesn\'t match downloaded database. Please try again or contact support.');
 
                 return $this->logError($error, __METHOD__);
             }
