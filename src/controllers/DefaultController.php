@@ -40,7 +40,7 @@ class DefaultController extends Controller
      */
     public function actionDownloadDatabase()
     {
-        $response = CountryRedirect::$plugin->database->downloadDatabase();
+        $response = CountryRedirect::$plugin->getDatabase()->downloadDatabase();
 
         if (isset($response['error'])) {
             return $this->asJson($response['error']);
@@ -51,7 +51,7 @@ class DefaultController extends Controller
 
     public function actionUnpackDatabase()
     {
-        $response = CountryRedirect::$plugin->database->unpackDatabase();
+        $response = CountryRedirect::$plugin->getDatabase()->unpackDatabase();
 
         if (isset($response['error'])) {
             return $this->asJson($response['error']);
@@ -62,13 +62,13 @@ class DefaultController extends Controller
 
     public function actionUpdateDatabase()
     {
-        $response = CountryRedirect::$plugin->database->downloadDatabase();
+        $response = CountryRedirect::$plugin->getDatabase()->downloadDatabase();
 
         if (isset($response['error'])) {
             return $this->asJson($response['error']);
         }
 
-        $response = CountryRedirect::$plugin->database->unpackDatabase();
+        $response = CountryRedirect::$plugin->getDatabase()->unpackDatabase();
 
         if (isset($response['error'])) {
             return $this->asJson($response['error']);
@@ -83,14 +83,14 @@ class DefaultController extends Controller
 
         CountryRedirect::$plugin->log->clearLogs();
 
-        return $this->redirect('utilities/country-redirect-log-utility');
+        return $this->redirect('utilities/country-redirect');
     }
 
     public function actionInfo()
     {
         $currentUrl        = Craft::$app->getRequest()->getParam('currentUrl');
         $currentSiteHandle = Craft::$app->getRequest()->getParam('currentSiteHandle');
-        $bannerModel       = CountryRedirect::$plugin->countryRedirectService->getBanner($currentUrl, $currentSiteHandle);
+        $bannerModel       = CountryRedirect::$plugin->getService()->getBanner($currentUrl, $currentSiteHandle);
 
         if ($bannerModel) {
             $banner         = $bannerModel->toArray();
@@ -98,7 +98,7 @@ class DefaultController extends Controller
         }
 
         return $this->asJson([
-            'info'   => CountryRedirect::$plugin->countryRedirectService->getInfo(),
+            'info'   => CountryRedirect::$plugin->getService()->getInfo(),
             'banner' => $banner ?? null,
         ]);
     }
