@@ -14,10 +14,13 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\UrlHelper;
 use craft\services\Utilities;
 use superbig\countryredirect\console\controllers\UpdateController;
+use superbig\countryredirect\services\BannerService;
 use superbig\countryredirect\services\DatabaseService;
 use superbig\countryredirect\services\LogService;
-use superbig\countryredirect\services\CountryRedirectService;
+use superbig\countryredirect\services\NavService;
+use superbig\countryredirect\services\RedirectService;
 use superbig\countryredirect\utilities\CountryRedirectLogUtility;
+use superbig\countryredirect\utilities\CountryRedirectUtility;
 use superbig\countryredirect\variables\CountryRedirectVariable;
 use superbig\countryredirect\models\Settings;
 
@@ -40,9 +43,10 @@ use craft\web\Application as WebApplication;
  * @package   CountryRedirect
  * @since     2.0.0
  *
- * @property  CountryRedirectService $countryRedirectService
- * @property  DatabaseService        $database
- * @property  LogService             $log
+ * @property  RedirectService $countryRedirectService
+ * @property  DatabaseService $database
+ * @property  BannerService   $banner
+ * @property  LogService      $log
  * @method  Settings getSettings()
  */
 class CountryRedirect extends Plugin
@@ -166,6 +170,7 @@ class CountryRedirect extends Plugin
             Utilities::class,
             Utilities::EVENT_REGISTER_UTILITY_TYPES,
             function(RegisterComponentTypesEvent $event) {
+                $event->types[] = CountryRedirectUtility::class;
                 $event->types[] = CountryRedirectLogUtility::class;
             }
         );

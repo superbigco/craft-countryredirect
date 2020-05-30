@@ -19,14 +19,24 @@ use craft\web\Response;
 use GeoIp2\Database\Reader;
 use GuzzleHttp\Client;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
+use superbig\countryredirect\checks\BotCheck;
+use superbig\countryredirect\checks\CheckInterface;
+use superbig\countryredirect\checks\ElementCheck;
+use superbig\countryredirect\checks\EnabledCheck;
+use superbig\countryredirect\checks\GeoCheck;
+use superbig\countryredirect\checks\IgnoredSegmentCheck;
+use superbig\countryredirect\checks\LanguageCheck;
+use superbig\countryredirect\checks\SiteCheck;
 use superbig\countryredirect\CountryRedirect;
 
 use Craft;
 use craft\base\Component;
 use superbig\countryredirect\helpers\CountryRedirectHelper;
+use superbig\countryredirect\helpers\RedirectHelper;
 use superbig\countryredirect\models\Banner;
 use superbig\countryredirect\models\Link;
 use superbig\countryredirect\models\LogModel;
+use superbig\countryredirect\models\RedirectRequest;
 use superbig\countryredirect\models\Settings;
 use yii\base\InvalidConfigException;
 
@@ -35,7 +45,7 @@ use yii\base\InvalidConfigException;
  * @package   CountryRedirect
  * @since     2.0.0
  */
-class CountryRedirectService extends Component
+class RedirectService extends Component
 {
     // Public Methods
     // =========================================================================
@@ -53,81 +63,58 @@ class CountryRedirectService extends Component
         $this->config = CountryRedirect::$plugin->getSettings();
     }
 
-    /**
-     * @return Response|bool
-     * @throws \craft\errors\MissingComponentException
-     */
-    public function maybeRedirect()
+    public function onSiteRequest()
     {
-        // Get the site URL config setting
-        $enabled        = $this->config->enabled;
-        $ignoreSegments = $this->config->ignoreSegments;
+        $ip      = $this->getIpAddress();
+        $request = new RedirectRequest([
+            'ipAddress' => $ip,
+        ]);
 
-        if ($this->config->ignoreBots) {
-            $crawlerDetect = new CrawlerDetect;
-
-            if ($crawlerDetect->isCrawler()) {
-                return false;
-            }
-        }
-
-        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-        if (strpos($path, 'country-redirect')) {
-            return false;
-        }
+        $this->maybeRedirect($request);
 
         if ($this->wasRedirectedFromBanner()) {
             $this->setBannerCookie();
         }
 
-        if (!empty($ignoreSegments)) {
-            foreach ($ignoreSegments as $segment) {
-                if (strpos($path, $segment)) {
-                    return false;
-                }
-            }
-        }
-
-        // Don't redirect if the plugin is soft disabled
-        if (!$enabled) {
-            return false;
-        }
-
-        // Depending on enabled setting, do some extra checks
-        if (!is_bool($enabled) && is_array($enabled)) {
-            $user = Craft::$app->getUser()->getIdentity();
-
-            // Should we check logged in users?
-            // TODO: Add a setting to redirect for specific user groups?
-            if (isset($enabled['loggedIn'])) {
-                if ($user && !$enabled['loggedIn']) {
-                    return false;
-                }
-            }
-
-            // Should we check anon users?
-            if (isset($enabled['anonymous'])) {
-                if (!$user && !$enabled['anonymous']) {
-                    return false;
-                }
-            }
-        }
-
-        $countryCode   = $this->getCountryCode();
-        $countryLocale = $this->getSiteHandle($countryCode);
-
-        if ($url = $this->getRedirectUrl($countryLocale)) {
+        if ($url = $request->redirectUrl) {
             // Set redirected flash/query param
             if ($redirectParam = $this->config->redirectedParam) {
                 Craft::$app->getSession()->setFlash($redirectParam, true);
             }
 
             if ($this->config->enableLogging) {
-                CountryRedirect::$plugin->log->logRedirect($url);
+                CountryRedirect::$plugin->getLog()->logRedirect($url);
             }
 
             return Craft::$app->getResponse()->redirect($url);
+        }
+    }
+
+    /**
+     * @param RedirectRequest $redirectRequest
+     *
+     * @return void
+     */
+    public function maybeRedirect(RedirectRequest $redirectRequest)
+    {
+        // Get the site URL config setting
+        $checks = [
+            EnabledCheck::class,
+            IgnoredSegmentCheck::class,
+            BotCheck::class,
+            GeoCheck::class,
+            LanguageCheck::class,
+            SiteCheck::class,
+            ElementCheck::class,
+        ];
+
+        /** @var CheckInterface[] $checks */
+        $checks = array_map(function($class) use ($redirectRequest) {
+            return new $class($redirectRequest);
+        }, $checks);
+
+        foreach ($checks as $check) {
+            $check->execute($redirectRequest);
         }
     }
 
@@ -277,7 +264,9 @@ class CountryRedirectService extends Component
             $ip = $this->config->overrideIp;
         }
 
-        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        $isLocalIp = $ip == '::1' || $ip == '127.0.0.1';
+
+        if ($isLocalIp || !filter_var($ip, FILTER_VALIDATE_IP)) {
             return null;
         }
 
@@ -421,77 +410,6 @@ class CountryRedirectService extends Component
         $this->_setCookie($this->config->cookieName, null, -1);
     }
 
-    public function getMatchedElement($url = null)
-    {
-        if (!Craft::$app->getIsInitialized()) {
-            Craft::warning(__METHOD__ . "() was called before the application was fully initialized.\n" .
-                "Stack trace:\n" . App::backtrace(), __METHOD__);
-        }
-
-        if ($this->_matchedElement !== null) {
-            return $this->_matchedElement;
-        }
-
-        $request = Craft::$app->getRequest();
-
-        if (!$request->getIsSiteRequest()) {
-            return $this->_matchedElement = false;
-        }
-
-        $this->_getMatchedElementRoute($url ?? $request->getPathInfo());
-
-        return $this->_matchedElement;
-    }
-
-    /**
-     * Attempts to match a path with an element in the database.
-     *
-     * @param string $path
-     *
-     * @return mixed
-     */
-    private function _getMatchedElementRoute(string $path)
-    {
-        if ($this->_matchedElementRoute !== null) {
-            return $this->_matchedElementRoute;
-        }
-
-        $this->_matchedElement      = false;
-        $this->_matchedElementRoute = false;
-
-
-        if (Craft::$app->getIsInstalled() && Craft::$app->getRequest()->getIsSiteRequest()) {
-            $path = rtrim(ltrim(parse_url($path, PHP_URL_PATH), DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR);
-
-            /** @var Element $element */
-            /** @noinspection PhpUnhandledExceptionInspection */
-            $element = Craft::$app->getElements()->getElementByUri($path, Craft::$app->getSites()->getCurrentSite()->id, true);
-
-            if ($element) {
-                $route = $element->getRoute();
-
-                if ($route) {
-                    if (is_string($route)) {
-                        $route = [$route, []];
-                    }
-
-                    $this->_matchedElement      = $element;
-                    $this->_matchedElementRoute = $route;
-                }
-            }
-        }
-
-        if (YII_DEBUG) {
-            Craft::debug([
-                'rule'   => 'Element URI: ' . $path,
-                'match'  => isset($element, $route),
-                'parent' => null,
-            ], __METHOD__);
-        }
-
-        return $this->_matchedElementRoute;
-    }
-
     /**
      * set() takes the same parameters as PHP's builtin setcookie();
      *
@@ -525,7 +443,7 @@ class CountryRedirectService extends Component
     /**
      * @return bool|mixed
      */
-    private function getCountryMap()
+    public function getCountryMap()
     {
         // Get country map
         if (!isset($this->countryMap)) {
@@ -542,7 +460,7 @@ class CountryRedirectService extends Component
     /**
      * @return int|null|string
      */
-    private function getCountryCode()
+    public function getCountryCode()
     {
         $currentLocale = Craft::$app->getSites()->currentSite->handle;
         $countryCode   = null;
@@ -580,7 +498,7 @@ class CountryRedirectService extends Component
      *
      * @return bool|mixed|null
      */
-    private function getSiteHandle($countryCode)
+    public function getSiteHandle($countryCode)
     {
         // Get country map
         $countryMap  = $this->getCountryMap();
@@ -627,7 +545,7 @@ class CountryRedirectService extends Component
      *
      * @return bool|mixed|null|string
      */
-    private function getRedirectUrl($siteHandle = null, $currentUrl = null, $currentSiteHandle = null)
+    public function getRedirectUrl($siteHandle = null, $currentUrl = null, $currentSiteHandle = null)
     {
         // First check if the countryLocale is actually a arbitrary URL
         if ($url = filter_var($siteHandle, FILTER_VALIDATE_URL)) {
@@ -676,5 +594,10 @@ class CountryRedirectService extends Component
     private function _normalizeCountryCode($countryCode = null)
     {
         return \strtolower($countryCode);
+    }
+
+    private function checkIfIgnoredSegment(RedirectRequest $redirectRequest)
+    {
+
     }
 }

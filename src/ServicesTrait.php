@@ -10,9 +10,11 @@
 
 namespace superbig\countryredirect;
 
+use superbig\countryredirect\services\BannerService;
 use superbig\countryredirect\services\DatabaseService;
 use superbig\countryredirect\services\LogService;
-use superbig\countryredirect\services\CountryRedirectService;
+use superbig\countryredirect\services\NavService;
+use superbig\countryredirect\services\RedirectService;
 
 /**
  * Class CountryRedirect
@@ -21,9 +23,10 @@ use superbig\countryredirect\services\CountryRedirectService;
  * @package   CountryRedirect
  * @since     2.0.0
  *
- * @property  CountryRedirectService $countryRedirectService
- * @property  DatabaseService        $database
- * @property   LogService            $log
+ * @property  RedirectService $countryRedirectService
+ * @property  DatabaseService $database
+ * @property  BannerService   $banner
+ * @property   LogService     $log
  */
 trait ServicesTrait
 {
@@ -44,7 +47,23 @@ trait ServicesTrait
     }
 
     /**
-     * @return CountryRedirectService
+     * @return BannerService
+     */
+    public function getBanner()
+    {
+        return $this->get('banner');
+    }
+
+    /**
+     * @return NavService
+     */
+    public function getNav()
+    {
+        return $this->get('nav');
+    }
+
+    /**
+     * @return RedirectService
      */
     public function getService()
     {

@@ -31,29 +31,13 @@ use yii\base\ErrorException;
  * @package   CountryRedirect
  * @since     2.0.0
  *
- * @property null                                                           $bannerCookie
- * @property null|string|int                                                $countryCode
- * @property null                                                           $ipAddress
- * @property mixed                                                          $overrideLocaleParam
- * @property \superbig\countryredirect\services\CountryRedirect_BannerModel $banner
- * @property string                                                         $countryFromIpAddress
- * @property array                                                          $links
- * @property null                                                           $countryCookie
- * @property null                                                           $info
- * @property mixed                                                          $browserLanguages
- * @property Settings                                                       $settings
+ * @property Settings $settings
  */
 class DatabaseService extends Component
 {
     // Public Methods
     // =========================================================================
 
-    protected $urls;
-    protected $config;
-    protected $localDatabaseFilename;
-    protected $localDatabasePath;
-    protected $unpackedDatabasePath;
-    protected $localDatabasePathWithoutFilename;
     protected $settings;
 
     public function init()
@@ -70,6 +54,20 @@ class DatabaseService extends Component
             $reader = new Reader($this->settings->getCountryDbPath());
 
             return $reader->country($ipAddress);
+        } catch (InvalidDatabaseException $e) {
+            return null;
+        } catch (AddressNotFoundException $e) {
+            return null;
+        }
+    }
+
+    public function getCityFromIp($ipAddress)
+    {
+        // This creates the Reader object, which should be reused across lookups.
+        try {
+            $reader = new Reader($this->settings->getCityDbPath());
+
+            return $reader->city($ipAddress);
         } catch (InvalidDatabaseException $e) {
             return null;
         } catch (AddressNotFoundException $e) {
@@ -100,8 +98,8 @@ class DatabaseService extends Component
     {
         $settings      = $this->settings;
         $dbPath        = $settings->getDbPath(null, true);
-        $tempPath      = $settings->getTempPath();
         $countryDbPath = $settings->getCountryDbPath();
+        $cityDbPath    = $settings->getCityDbPath();
 
         if (!FileHelper::isWritable($dbPath)) {
             $error = $this
@@ -112,26 +110,34 @@ class DatabaseService extends Component
             return $this->logError($error, __METHOD__);
         }
 
-        $tempFile = $settings->getCountryDbPath($isTemp = true);
+        $tempFile     = $settings->getCountryDbPath($isTemp = true);
+        $tempFileCity = $settings->getCityDbPath($isTemp = true);
 
-        $this->logInfo('Downloading database to: {path}' . $countryDbPath, __METHOD__);
+        $this->logInfo('Downloading country database to: {path}' . $countryDbPath, __METHOD__);
+        $this->logInfo('Downloading city database to: ' . $cityDbPath, __METHOD__);
 
         try {
             (new Client())
                 ->get($settings->getCountryDownloadUrl(), [
                     'sink' => $tempFile,
                 ]);
+            (new Client())
+                ->get($settings->getCityDownloadUrl(), [
+                    'sink' => $tempFileCity,
+                ]);
             //@unlink($tempFile);
         } catch (ConnectException $e) {
-            $error = $this->formatErrorMessage('Failed to connect to {url}: {error}', [
+            $error = $this->formatErrorMessage('Failed to connect to {url} or {url2}: {error}', [
                 'url'   => $settings->getCountryDownloadUrl(),
+                'url2'  => $settings->getCityDownloadUrl(),
                 'error' => $e->getMessage(),
             ]);
 
             return $this->logError($error);
         } catch (ClientException $e) {
-            $error = $this->formatErrorMessage('Failed to download {url}: {error}', [
+            $error = $this->formatErrorMessage('Failed to download {url} or {url2}: {error}', [
                 'url'   => $settings->getCountryDownloadUrl(),
+                'url2'  => $settings->getCityDownloadUrl(),
                 'error' => $e->getMessage(),
             ]);
 
@@ -183,7 +189,8 @@ class DatabaseService extends Component
         }
 
         try {
-            $this->findAndWriteCountryDatabase($remoteChecksum);
+            $this->findAndWriteCountryDatabase();
+            $this->findAndWriteCityDatabase();
         } catch (\Exception $e) {
             return $this->logError($e->getMessage(), __METHOD__);
         }
@@ -198,7 +205,7 @@ class DatabaseService extends Component
      */
     public function checkValidDb()
     {
-        return @file_exists(CountryRedirect::$plugin->getSettings()->getCountryDbPath());
+        return @file_exists(CountryRedirect::$plugin->getSettings()->getCountryDbPath()) && @file_exists(CountryRedirect::$plugin->getSettings()->getCityDbPath());
     }
 
     public function getLastUpdateTime()
@@ -253,6 +260,42 @@ class DatabaseService extends Component
                 } catch (ErrorException $e) {
                     $error = $this->formatErrorMessage('Failed to write country database to {path}', [
                         'path' => $countryDbPath,
+                    ]);
+
+                    throw new \Exception($error);
+                }
+            }
+        }
+
+        if (!$found) {
+            $error = $this->formatErrorMessage('Did not find database in archive', [
+            ]);
+
+            throw new \Exception($error);
+        }
+    }
+
+    private function findAndWriteCityDatabase()
+    {
+        $cityDbPath = $this->settings->getCityDbPath();
+        $tempFile   = $this->settings->getCityDbPath($isTemp = true);
+        $found      = false;
+        $archive    = new \PharData($tempFile);
+
+        foreach (new \RecursiveIteratorIterator($archive) as $file) {
+            $fileInfo = pathinfo($file);
+
+            if (!empty($fileInfo['extension']) && 'mmdb' === $fileInfo['extension']) {
+                $found  = true;
+                $result = $file->getContent();
+
+                try {
+                    FileHelper::writeToFile($cityDbPath, $result);
+
+                    @unlink($tempFile);
+                } catch (ErrorException $e) {
+                    $error = $this->formatErrorMessage('Failed to write city database to {path}', [
+                        'path' => $cityDbPath,
                     ]);
 
                     throw new \Exception($error);
