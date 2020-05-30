@@ -35,7 +35,6 @@ use yii\base\ErrorException;
  * @property null|string|int                                                $countryCode
  * @property null                                                           $ipAddress
  * @property mixed                                                          $overrideLocaleParam
- * @property \superbig\countryredirect\services\CountryRedirect_BannerModel $banner
  * @property string                                                         $countryFromIpAddress
  * @property array                                                          $links
  * @property null                                                           $countryCookie
