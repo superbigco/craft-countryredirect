@@ -26,6 +26,7 @@
     "geoip2/geoip2": "^2.3",
     "jaybizzle/crawler-detect": "1.*",
     "jasongrimes/paginator": "^1.0.0",
+    "zonuexe/http-accept-language": "~0.4.1",
     "ext-zlib": "*"
   },
   "repositories": [

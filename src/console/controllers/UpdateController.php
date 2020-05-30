@@ -39,8 +39,8 @@ class UpdateController extends Controller
         $service     = CountryRedirect::$plugin->getDatabase();
         $steps       = [
             'checkLicenseKey'  => 'Checking license key',
-            'downloadDatabase' => 'Downloaded database',
-            'unpackDatabase'   => 'Unpacked database',
+            'downloadDatabase' => 'Downloading databases',
+            'unpackDatabase'   => 'Unpacking databases',
         ];
         $currentStep = 1;
 

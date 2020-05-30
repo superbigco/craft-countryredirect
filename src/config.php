@@ -36,6 +36,10 @@ return [
             'anonymous' => true,
         ],
         /*
+         * MaxMind License Key
+         */
+        'licenseKey'          => '',
+        /*
          * Don't redirect bots/crawlers like GoogleBot, Bing etc.
          */
         'ignoreBots'          => true,

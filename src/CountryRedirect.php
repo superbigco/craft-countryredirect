@@ -78,9 +78,11 @@ class CountryRedirect extends Plugin
         self::$plugin = $this;
 
         $this->setComponents([
-            'countryRedirectService' => CountryRedirectService::class,
+            'countryRedirectService' => RedirectService::class,
+            'banner'                 => BannerService::class,
             'database'               => DatabaseService::class,
             'log'                    => LogService::class,
+            'nav'                    => NavService::class,
         ]);
 
 

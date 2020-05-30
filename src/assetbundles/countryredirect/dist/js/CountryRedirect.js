@@ -40,7 +40,7 @@
         bindEvents: function () {
             var self = this;
             self.$start.on('click', function (e) {
-                event.preventDefault();
+                e.preventDefault();
 
                 self.start();
             });

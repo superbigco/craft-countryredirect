@@ -1,0 +1,211 @@
+{#
+/**
+ * Country Redirect plugin for Craft CMS 3.x
+ *
+ * Country Redirect Settings.twig
+ *
+ * @author    Superbig
+ * @copyright Copyright (c) 2017 Superbig
+ * @link      https://superbig.co
+ * @package   CountryRedirect
+ * @since     2.0.0
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("superbig\\countryredirect\\assetbundles\\countryredirect\\CountryRedirectAsset") %}
+
+{% if not dbExists %}
+    <p class="error cr-utility__status" data-icon>No database found! Please check the settings below, and download the GeoIP2 databases.</p>
+{% else %}
+    <p class="success cr-utility__status" data-icon>Everything looks good. Database was last updated {{ dbUpdateTime|atom }}.</p>
+{% endif %}
+
+<div class="cr-utility__section">
+    <h2>Settings</h2>
+
+    <p>This is a overview of all the settings you have:</p>
+
+    {% set settingsOverview = [
+        {
+            text: 'Databases will be stored in',
+            value: settings.getDbPath()
+        },
+        {
+            text: 'Country database filename',
+            value: settings.countryDbFilename,
+        },
+        {
+            text: 'City database filename',
+            value: settings.cityDbFilename,
+        },
+        {
+            text: 'Country database download URL',
+            value: settings.countryDbDownloadUrl,
+        },
+        {
+            text: 'City database download URL',
+            value: settings.cityDbDownloadUrl,
+        },
+    ] %}
+
+    <table class="data fullwidth">
+        <tbody>
+        {% for row in settingsOverview %}
+            <tr>
+                <th class="light">{{ row.text }}</th>
+                <td>{{ row.value }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ cpUrl('settings/plugins/country-redirect') }}" class="btn small cr-edit-settings-link">Edit settings</a>
+</div>
+
+<div class="cr-utility__section">
+    <h3>Redirect Map Preview</h3>
+    <p>This is a overview of all the redirect rules you have added.</p>
+
+    {% for config in settings.redirectMap %}
+        {% include 'country-redirect/_partials/redirect-map-preview' with { config: config, count: loop.index } only %}
+    {% endfor %}
+</div>
+
+<div class="cr-utility__section">
+    <hr>
+    <h3>Update database manually</h3>
+
+    <div class="countryredirect-updater" data-countryredirect-updater>
+        <button class="btn submit countryredirect-updater__start js-start"
+                type="button">{{ dbExists ? 'Update database' : 'Download database' }}</button>
+        <div class="countryredirect-updater__progress js-progress hidden">
+
+        </div>
+    </div>
+
+    <hr>
+
+    <h3>Update database via CRON job</h3>
+
+    <p>You can run the update either via the console command, or via a request to the update URL. Recommended interval is once every month, on the first
+        Wednesday of the month.</p>
+
+    {{ forms.textareaField({
+        label: 'Console command',
+        value: './craft country-redirect/update',
+        rows: 1,
+        disabled: true
+    }) }}
+
+    {{ forms.textareaField({
+        label: 'Update URL',
+        value: siteUrl('country-redirect/update-database'),
+        rows: 1,
+        disabled: true
+    }) }}
+</div>
+
+<div class="cr-utility__section" data-countryredirect-preview>
+    <hr>
+    <h2>Preview redirect</h2>
+
+    <p>Here you can enter a IP and optionally select a entry to see how Country Redirect will behave:</p>
+
+    {#
+        Ideas motherfucker
+        - Table of all countries tested to see where the fuck they redirect to
+    #}
+    <form>
+        {{ forms.textField({
+            name: 'ipAddress',
+            label: 'Test IP address/Country',
+            instructions: 'Need to be a country dropdown autosuggest thingy. Enter a IP to emulate. If you are looking for an example IP to use, [Google is usually helpful](https://www.google.com/search?q=japan+random+ip+address&oq=japan+random+ip+address&ie=UTF-8).',
+            value: settings.overrideIp,
+            class: 'js-ipAddress',
+        }) }}
+
+        {{ forms.selectField({
+            name: 'sites',
+            label: 'Current site',
+            instructions: 'Select the site you want to emulate browsing',
+            options: sites,
+            class: 'js-sites',
+        }) }}
+
+        {{ forms.elementSelectField({
+            name: 'previewElement',
+            label: 'Element to include in preview',
+            instructions: '',
+            id: 'previewElement',
+            elementType: entryClass,
+        }) }}
+
+        {{ forms.lightswitchField({
+            name: 'isOverridden',
+            label: 'Override site?',
+            instructions: 'This will emulate overriding the site (via a override link)',
+            on: false,
+            toggle: '#js-overrideSite',
+            class: 'js-overrideSiteToggle',
+        }) }}
+
+        <div class="override-section hidden js-overrideSite" id="js-overrideSite">
+            {{ forms.selectField({
+                name: 'overrideSite',
+                label: 'Site to override with',
+                instructions: 'Select the site you want to emulate overriding to',
+                options: sites,
+                class: 'js-sites',
+            }) }}
+        </div>
+
+        <button data-action="{{ actionUrl('country-redirect/preview') }}"
+                class="btn btn-primary submit">{{ "Preview"|t('country-redirect') }}</button>
+    </form>
+
+</div>
+
+<div class="cr-utility__section">
+    <hr>
+    <h2>Logs</h2>
+
+    {% if logs|length %}
+        <div class="buttons">
+            <a href="{{ cpUrl('country-redirect/clear-logs') }}"
+               class="btn submit add icon">{{ "Clear logs"|t('country-redirect') }}</a>
+        </div>
+
+        <table class="table data fullwidth">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Country</th>
+                <th>Original URL</th>
+                <th>Target URL</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for log in logs %}
+                {# @var log \superbig\countryredirect\models\LogModel #}
+                {% set volume = log %}
+                <tr>
+                    <td scope="row" data-title="{{ 'Log Date'|t('app') }}">{{ log.dateCreated }}</td>
+                    <td scope="row" data-title="{{ 'Country'|t('app') }}">{{ log.getCountry() }}</td>
+                    <td scope="row" data-title="{{ 'Original URL'|t('app') }}">
+                        {{ log.getFromUrl() }}
+                    </td>
+                    <td scope="row" data-title="{{ 'Target URL'|t('app') }}">
+                        {{ log.getTargetUrl() }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% include 'country-redirect/_pagination' %}
+    {% else %}
+        <p>{{ 'No log entries.'|t('country-redirect') }}</p>
+    {% endif %}
+</div>

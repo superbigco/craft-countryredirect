@@ -15,83 +15,64 @@ use superbig\countryredirect\CountryRedirect;
 
 use Craft;
 use craft\base\Model;
+use superbig\countryredirect\helpers\RedirectHelper;
 
 /**
  * @author    Superbig
  * @package   CountryRedirect
  * @since     2.0.0
+ *
+ * @property Redirect[] $redirectMap
  */
 class Settings extends Model
 {
-    // Public Properties
-    // =========================================================================
+    public    $enabled                      = false;
+    public    $enableLogging                = false;
+    public    $cacheEnabled                 = true;
+    public    $devMode                      = false;
+    public    $checkEveryTime               = false;
+    public    $ignoreBots                   = true;
+    public    $redirectMatchingElementOnly  = false;
+    public    $overrideIp;
+    public    $overrideLocaleParam          = 'selected-locale';
+    public    $redirectedParam              = 'redirected';
+    public    $bannerParam                  = 'fromBanner';
+    public    $cookieName                   = 'countryRedirect';
+    public    $cookieNameBanner             = 'countryRedirectBanner';
+    public    $licenseKey                   = '';
+    public    $minimumAcceptLanguageQuality = 80;
+    public    $countryMap                   = [];
+    public    $redirectMap                  = [];
+    public    $ignoreSegments               = [];
+    public    $banners                      = [];
+    public    $dbPath;
+    public    $tempPath;
+    public    $accountAreaUrl               = 'https://www.maxmind.com/en/account';
+    public    $cityDbDownloadUrl            = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz';
+    public    $countryDbDownloadUrl         = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz';
+    public    $countryDbChecksumUrl         = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.md5';
+    public    $cityDbFilename               = 'GeoLite2-City.mmdb';
+    public    $countryDbFilename            = 'GeoLite2-Country.mmdb';
+    protected $parsedRedirectMap;
+    protected $parsedIgnoreSegments;
 
-    /**
-     * @var boolean
-     */
-    public $enabled = false;
+    public function init()
+    {
+        parent::init();
 
-    /**
-     * @var boolean
-     */
-    public $enableLogging = false;
+        if (!empty($this->countryMap)) {
+            Craft::$app->getDeprecator()->log('CountryRedirect::Settings->countryMap', 'Country Redirect setting `countryMap` has been deprecated. Use `redirectMap` instead.');
 
-    /**
-     * @var boolean
-     */
-    public $devMode = false;
-
-    /**
-     * Check location on every request, regardless of the cookie value
-     *
-     * @var boolean
-     */
-    public $checkEveryTime = false;
-
-    /**
-     * Local mode allow you to lookup your current IP from a external service.
-     *
-     * This allow you to test the service locally, since the IP normally would be 127.0.0.1.
-     *
-     * @var boolean
-     */
-    public $localMode = false;
-
-    /**
-     * Override what is considered the users IP. Useful when testing locally, or when you want to debug
-     */
-    public $overrideIp           = null;
-    public $overrideLocaleParam  = 'selected-locale';
-    public $redirectedParam      = 'redirected';
-    public $bannerParam          = 'fromBanner';
-    public $cookieName           = 'countryRedirect';
-    public $cookieNameBanner     = 'countryRedirectBanner';
-    public $licenseKey           = '';
-    public $ignoreBots           = true;
-    public $countryMap           = [];
-    public $ignoreSegments       = [];
-    public $banners              = [];
-    public $dbPath;
-    public $tempPath;
-    public $accountAreaUrl       = 'https://www.maxmind.com/en/account';
-    public $cityDbDownloadUrl    = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz';
-    public $countryDbDownloadUrl = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz';
-    public $countryDbChecksumUrl = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.md5';
-    public $cityDbFilename       = 'GeoLite2-City.mmdb';
-    public $countryDbFilename    = 'GeoLite2-Country.mmdb';
-
-    // Public Methods
-    // =========================================================================
+            $this->redirectMap = RedirectHelper::mapLegacyCountryToRedirectMap($this->countryMap);
+        }
+    }
 
     /**
      * @inheritdoc
      */
     public function rules()
     {
-        return [
-            //[ 'someAttribute', 'string' ],
-            //[ 'someAttribute', 'default', 'value' => 'Some Default' ],
-        ];
+        return [];
     }
 
     public function getCountryDownloadUrl()
@@ -160,5 +141,38 @@ class Settings extends Model
     public function hasValidLicenseKey()
     {
         return !empty($this->licenseKey);
+    }
+
+    /**
+     * @return IgnoreSegment[]
+     */
+    public function getIgnoredSegments()
+    {
+        if (!$this->parsedIgnoreSegments) {
+            $builtInIgnoreSegments = [
+                'country-redirect',
+            ];
+
+            $this->parsedIgnoreSegments = array_map(function($segment) {
+                return new IgnoreSegment(['rawSegment' => $segment]);
+            }, array_merge($builtInIgnoreSegments, $this->ignoreSegments));
+        }
+
+        return $this->parsedIgnoreSegments;
+    }
+
+
+    /**
+     * @return Redirect[]
+     */
+    public function getRedirectMap()
+    {
+        if (!$this->parsedRedirectMap) {
+            $this->parsedRedirectMap = array_map(function($row) {
+                return new Redirect($row);
+            }, array_merge($this->redirectMap));
+        }
+
+        return $this->parsedRedirectMap;
     }
 }
