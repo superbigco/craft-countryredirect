@@ -1,0 +1,58 @@
+{% set keys = [
+    {
+        label: 'Countries',
+        key: 'country'
+    },
+    {
+        label: 'Target Site Handle',
+        key: 'targetSiteHandle'
+    },
+    {
+        label: 'Target URL',
+        key: 'targetUrl'
+    },
+    {
+        label: 'Languages',
+        key: 'language'
+    },
+    {
+        label: 'Language Regions',
+        key: 'languageRegion'
+    },
+    {
+        label: 'Contintent',
+        key: 'continent'
+    },
+    {
+        label: 'Is in European Union',
+        boolean: true,
+        key: 'isInEuropeanUnion'
+    },
+] %}
+<div class="redirect-map-preview">
+    <div class="redirect-map-preview__count">{{ count }}.</div>
+    <div class="redirect-map-preview__inner">
+        {% for line in keys %}
+            {% set lineValue = config[line.key] ?? null %}
+            {% set isBoolean = line['boolean'] ?? false %}
+            {% if lineValue %}
+                <div class="redirect-map-preview-line">
+                    {% if lineValue is iterable %}
+                        <p class="redirect-map-preview-line__label">{{ line.label }}</p>
+                        <ul class="redirect-map-preview-line__values">
+                            {% for value in lineValue %}
+                                <li>{{ value }}{{ not loop.last ? ', ' : '' }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="redirect-map-preview-line__label">{{ line.label }}</p>
+                        {% if isBoolean %}
+                            {% set lineValue = '&check;' %}
+                        {% endif %}
+                        <p class="redirect-map-preview-line__value">{{ lineValue|raw }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
