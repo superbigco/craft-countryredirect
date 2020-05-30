@@ -4,15 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [2.1.0] - 2020-05-30
+
+> {warning} You now have to register for a MaxMind account and obtain a license key in order to download the GeoLite2 databases. This is due to a change that was introduced December 30th 2019, [to comply with GDPR and CCPA](https://blog.maxmind.com/2019/12/18/significant-changes-to-accessing-and-using-geolite2-databases/). After upgrading to 2.1.0, you need to add the license key in the Country Redirect plugin settings to continue downloading the databases. Check the readme for detailed instructions on this.
+
 ### Added
-- Added setting for including existing query arguments when redirecting
+- Added setting `dbPath` to override where the plugin stores its database. By default it will now use the storage path instead of the plugin directory. 💯 improvement.
+- Converted hardcoded filenames and urls to settings: `countryDbFilename`, `cityDbFilename`, `countryDbDownloadUrl`, `cityDbDownloadUrl`
+- Added `ext-zlib` as dependency to reduce environment errors
 
 ### Fixed
 - Country codes set in the config file is now case insensitive
+- Removed duplicate console command
 
 ### Changed
 - Tweaked console output when updating the database 
+- Database files will now be stored in the storage path by default, instead of in the plugin folder. 
 
 ## [2.0.13] - 2019-08-19
 ### Added

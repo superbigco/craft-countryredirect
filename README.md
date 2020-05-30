@@ -20,7 +20,7 @@ To install the plugin, follow these instructions.
 
         composer require superbig/craft-countryredirect
 
-3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Country Redirect.
+3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Country Redirect. Alternatively, run the command `./craft install/plugin country-redirect`
 
 ## Country Redirect Overview
 
@@ -35,6 +35,8 @@ Before you start using the plugin, you have to do 3 things:
 2. Copy the configuration file `config.php` as `country-redirect.php` into the Craft `config` directory, usually `config/`
 
 3. Modify the configuration file to match preferences, and make sure you setup the `countryMap` setting to match your site handles.
+
+4. Add your [MaxMind.com License Key](https://support.maxmind.com/account-faq/license-keys/can-generate-new-license-key/) obtained from the [MaxMind.com account area](https://www.maxmind.com/en/accounts/current/people/current).  
 
 ## Configuration
 
@@ -53,6 +55,11 @@ return [
             'loggedIn'  => true,
             'anonymous' => true,
         ],
+
+        /*
+         * MaxMind.com License Key
+         */
+        'licenseKey' => null,
 
         /*
          * Enable logging
