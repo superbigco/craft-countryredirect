@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.1] - 2020-06-16
+
+### Fixed
+
+- Fixed problem with country codes not being normalized to lowercase in config
+
 ## [2.1.0] - 2020-05-30
 
 > {warning} You now have to register for a MaxMind account and obtain a license key in order to download the GeoLite2 databases. This is due to a change that was introduced December 30th 2019, [to comply with GDPR and CCPA](https://blog.maxmind.com/2019/12/18/significant-changes-to-accessing-and-using-geolite2-databases/). After upgrading to 2.1.0, you need to add the license key in the Country Redirect plugin settings to continue downloading the databases. Check the readme for detailed instructions on this.

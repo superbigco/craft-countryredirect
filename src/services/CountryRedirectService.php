@@ -43,8 +43,8 @@ class CountryRedirectService extends Component
     /** @var Settings $config */
     protected $config;
     protected $countryMap;
-    private   $_matchedElement;
-    private   $_matchedElementRoute;
+    private $_matchedElement;
+    private $_matchedElementRoute;
 
     public function init()
     {
@@ -60,7 +60,7 @@ class CountryRedirectService extends Component
     public function maybeRedirect()
     {
         // Get the site URL config setting
-        $enabled        = $this->config->enabled;
+        $enabled = $this->config->enabled;
         $ignoreSegments = $this->config->ignoreSegments;
 
         if ($this->config->ignoreBots) {
@@ -114,7 +114,7 @@ class CountryRedirectService extends Component
             }
         }
 
-        $countryCode   = $this->getCountryCode();
+        $countryCode = $this->getCountryCode();
         $countryLocale = $this->getSiteHandle($countryCode);
 
         if ($url = $this->getRedirectUrl($countryLocale)) {
@@ -137,19 +137,19 @@ class CountryRedirectService extends Component
     public function getLinks()
     {
         // Get locales
-        $sites               = Craft::$app->getSites()->getAllSites();
-        $links               = [];
+        $sites = Craft::$app->getSites()->getAllSites();
+        $links = [];
         $overrideLocaleParam = $this->getOverrideLocaleParam();
 
         foreach ($sites as $site) {
             /** @var Site $site */
-            $link    = new Link();
+            $link = new Link();
             $siteUrl = $site->baseUrl;
 
-            $link->siteName   = $site->name;
+            $link->siteName = $site->name;
             $link->siteHandle = $site->handle;
-            $link->url        = rtrim($siteUrl, '?') . '?' . http_build_query([$overrideLocaleParam => '✓']);
-            $links[]          = $link;
+            $link->url = rtrim($siteUrl, '?') . '?' . http_build_query([$overrideLocaleParam => '✓']);
+            $links[] = $link;
         }
 
         return $links;
@@ -178,14 +178,14 @@ class CountryRedirectService extends Component
 
     public function getBanner($currentUrl = null, $currentSiteHandle = null)
     {
-        $banner      = null;
-        $banners     = $this->config->banners;
+        $banner = null;
+        $banners = $this->config->banners;
         $countryCode = $this->getCountryCode();
-        $siteHandle  = $this->getSiteHandle($countryCode);
-        $info        = $this->getInfo();
+        $siteHandle = $this->getSiteHandle($countryCode);
+        $info = $this->getInfo();
         $redirectUrl = $this->getRedirectUrl($siteHandle, $currentUrl, $currentSiteHandle);
-        $site        = Craft::$app->getSites()->getSiteByHandle($siteHandle);
-        $bannersLc   = array_change_key_case($banners);
+        $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        $bannersLc = array_change_key_case($banners);
 
         if ($matchesCountry = array_key_exists(strtolower($countryCode), $bannersLc)) {
             $banner = $bannersLc[ strtolower($countryCode) ] ?? null;
@@ -196,18 +196,18 @@ class CountryRedirectService extends Component
 
         if ($redirectUrl && $banner && !$this->getBannerCookie()) {
             return new Banner([
-                'text'        => $banner,
-                'url'         => $this->appendBannerParamToUrl($redirectUrl),
+                'text' => $banner,
+                'url' => $this->appendBannerParamToUrl($redirectUrl),
                 'countryName' => $info ? $info->name : null,
-                'siteHandle'  => $siteHandle,
-                'siteName'    => $site->name ?? null,
+                'siteHandle' => $siteHandle,
+                'siteName' => $site->name ?? null,
             ]);
         }
     }
 
     public function getInfo()
     {
-        $ip   = $this->getIpAddress();
+        $ip = $this->getIpAddress();
         $info = $this->getInfoFromIp($ip);
 
         return $info ? $info->country : null;
@@ -215,7 +215,7 @@ class CountryRedirectService extends Component
 
     public function getCountryFromIpAddress()
     {
-        $ip       = $this->getIpAddress();
+        $ip = $this->getIpAddress();
         $cacheKey = 'countryRedirect-ip-' . $ip;
 
         if ($ip == '::1' || $ip == '127.0.0.1' || !$ip) {
@@ -291,14 +291,14 @@ class CountryRedirectService extends Component
      */
     private function appendRedirectedParamToUrl($url = null)
     {
-        $url   = Craft::parseEnv($url);
+        $url = Craft::parseEnv($url);
         $param = $this->config->redirectedParam;
 
         if (!$param) {
             return $url;
         }
 
-        $query     = $param . '=✓';
+        $query = $param . '=✓';
         $parsedUrl = parse_url($url);
 
         if (empty($parsedUrl['path'])) {
@@ -322,14 +322,14 @@ class CountryRedirectService extends Component
      */
     private function appendBannerParamToUrl($url = null)
     {
-        $url   = Craft::parseEnv($url);
+        $url = Craft::parseEnv($url);
         $param = $this->config->bannerParam;
 
         if (!$param) {
             return $url;
         }
 
-        $query     = $param . '=✓';
+        $query = $param . '=✓';
         $parsedUrl = parse_url($url);
 
         if (empty($parsedUrl['path'])) {
@@ -456,7 +456,7 @@ class CountryRedirectService extends Component
             return $this->_matchedElementRoute;
         }
 
-        $this->_matchedElement      = false;
+        $this->_matchedElement = false;
         $this->_matchedElementRoute = false;
 
 
@@ -475,7 +475,7 @@ class CountryRedirectService extends Component
                         $route = [$route, []];
                     }
 
-                    $this->_matchedElement      = $element;
+                    $this->_matchedElement = $element;
                     $this->_matchedElementRoute = $route;
                 }
             }
@@ -483,8 +483,8 @@ class CountryRedirectService extends Component
 
         if (YII_DEBUG) {
             Craft::debug([
-                'rule'   => 'Element URI: ' . $path,
-                'match'  => isset($element, $route),
+                'rule' => 'Element URI: ' . $path,
+                'match' => isset($element, $route),
                 'parent' => null,
             ], __METHOD__);
         }
@@ -536,7 +536,7 @@ class CountryRedirectService extends Component
             return false;
         }
 
-        return $this->countryMap;
+        return array_change_key_case($this->countryMap);
     }
 
     /**
@@ -545,14 +545,14 @@ class CountryRedirectService extends Component
     private function getCountryCode()
     {
         $currentLocale = Craft::$app->getSites()->currentSite->handle;
-        $countryCode   = null;
+        $countryCode = null;
 
         // Get country map
         $countryMap = $this->getCountryMap();
 
         // Get selected country from GET
         $overrideLocaleParam = $this->getOverrideLocaleParam();
-        $overrideLocale      = Craft::$app->getRequest()->getParam($overrideLocaleParam);
+        $overrideLocale = Craft::$app->getRequest()->getParam($overrideLocaleParam);
 
         if ($overrideLocale) {
             // The selected country could be both key and value, so check for both
@@ -583,7 +583,7 @@ class CountryRedirectService extends Component
     private function getSiteHandle($countryCode)
     {
         // Get country map
-        $countryMap  = $this->getCountryMap();
+        $countryMap = $this->getCountryMap();
         $countryCode = $this->_normalizeCountryCode($countryCode);
 
         // Get country locale
@@ -592,11 +592,14 @@ class CountryRedirectService extends Component
 
             // If country locale is array, it's a list of regional languages
             if (is_array($countryLocale)) {
+                $countryLocaleLc = array_change_key_case($countryLocale);
                 $browseLanguageCodes = $this->getBrowserLanguages();
 
                 foreach ($browseLanguageCodes as $blCode) {
-                    if (isset($countryLocale[ $blCode ])) {
-                        return $countryLocale[ $blCode ];
+                    $blCode = $this->_normalizeCountryCode($blCode);
+
+                    if (isset($countryLocaleLc[ $blCode ])) {
+                        return $countryLocaleLc[ $blCode ];
                     }
                 }
             }
