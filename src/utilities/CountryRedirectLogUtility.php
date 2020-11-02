@@ -52,7 +52,7 @@ class CountryRedirectLogUtility extends Utility
      */
     public static function iconPath()
     {
-        return Craft::getAlias("@superbig/countryredirect/assetbundles/countryredirect/dist/img/icon-mask.svg");
+        return Craft::getAlias("@superbig/countryredirect/assetbundles/CountryRedirect/dist/img/icon-mask.svg");
     }
 
     /**

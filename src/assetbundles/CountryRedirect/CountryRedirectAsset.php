@@ -29,7 +29,7 @@ class CountryRedirectAsset extends AssetBundle
      */
     public function init()
     {
-        $this->sourcePath = "@superbig/countryredirect/assetbundles/countryredirect/dist";
+        $this->sourcePath = "@superbig/countryredirect/assetbundles/CountryRedirect/dist";
 
         $this->depends = [
             CpAsset::class,
