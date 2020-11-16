@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.2] - 2020-09-04
+
+### Fixed
+
+- Fixed deprecation error in Composer for asset bundle class
+- Fixed PSR-4 autoloading for Composer 2.0
+
 ## [2.1.1] - 2020-06-16
 
 ### Fixed
