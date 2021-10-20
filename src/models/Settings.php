@@ -71,6 +71,8 @@ class Settings extends Model
     public $ignoreBots           = true;
     public $countryMap           = [];
     public $ignoreSegments       = [];
+    public $ignoreUrlPatterns       = [];
+    public $stripSlashWhenComparingExactUrlMatches       = true;
     public $banners              = [];
     public $dbPath;
     public $tempPath;

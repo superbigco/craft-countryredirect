@@ -61,7 +61,6 @@ class CountryRedirectService extends Component
     {
         // Get the site URL config setting
         $enabled = $this->config->enabled;
-        $ignoreSegments = $this->config->ignoreSegments;
 
         if ($this->config->ignoreBots) {
             $crawlerDetect = new CrawlerDetect;
@@ -71,9 +70,8 @@ class CountryRedirectService extends Component
             }
         }
 
-        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-        if (strpos($path, 'country-redirect')) {
+        // Don't redirect if the plugin is soft disabled
+        if (!$enabled) {
             return false;
         }
 
@@ -81,16 +79,7 @@ class CountryRedirectService extends Component
             $this->setBannerCookie();
         }
 
-        if (!empty($ignoreSegments)) {
-            foreach ($ignoreSegments as $segment) {
-                if (strpos($path, $segment)) {
-                    return false;
-                }
-            }
-        }
-
-        // Don't redirect if the plugin is soft disabled
-        if (!$enabled) {
+        if ($this->shouldIgnoreUrl()) {
             return false;
         }
 
@@ -129,6 +118,51 @@ class CountryRedirectService extends Component
 
             return Craft::$app->getResponse()->redirect($url);
         }
+    }
+
+    public function shouldIgnoreUrl()
+    {
+        $ignoreSegments = $this->config->ignoreSegments;
+        $ignoreUrlPatterns = $this->config->ignoreUrlPatterns;
+
+        try {
+            $relativeUrl = Craft::$app->getRequest()->getUrl();
+        } catch (InvalidConfigException $e) {
+            return false;
+        }
+
+        if (strpos($relativeUrl, 'country-redirect')) {
+            return true;
+        }
+
+        if (!empty($ignoreUrlPatterns)) {
+            foreach ($ignoreUrlPatterns as $ignorePattern) {
+                if ($ignorePattern[0] === '=') {
+                    $exactMatch = substr($ignorePattern, 1);
+                    if ($this->config->stripSlashWhenComparingExactUrlMatches) {
+                        $relativeUrl = rtrim($relativeUrl, '/');
+                        $exactMatch = rtrim($exactMatch, '/');
+                    }
+
+                    if ($relativeUrl === $exactMatch) {
+                        return true;
+                    }
+                }
+                else if (preg_match($ignorePattern, $relativeUrl)) {
+                    return true;
+                }
+            }
+        }
+
+        if (!empty($ignoreSegments)) {
+            foreach ($ignoreSegments as $segment) {
+                if (strpos($relativeUrl, $segment) !== false) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
