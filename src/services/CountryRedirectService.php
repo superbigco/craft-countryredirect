@@ -676,6 +676,15 @@ class CountryRedirectService extends Component
         if ($url = filter_var($siteHandle, FILTER_VALIDATE_URL)) {
             $this->removeCountryCookie();
 
+            // Then check if this is the current URL
+            try {
+                $currentUrl = Craft::$app->getRequest()->getAbsoluteUrl();
+                if ($currentUrl === $url) {
+                    return false;
+                }
+            } catch (InvalidConfigException $e) {
+            }
+
             return $url;
         }
 
