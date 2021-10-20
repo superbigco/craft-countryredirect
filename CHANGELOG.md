@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Added
+- Added `ignoreUrlPatterns`. It is now possible to either ignore exact matches or use regex when deciding to redirect
+- Added `queryParamsValue` that allows you to override the default query params value (the ✓)
+
+### Fixed
+- Fixed redirect loop when redirecting to arbitrary URL within the Craft site
+
+### Deprecated
+- Deprecated `ignoreSegments` in favor of `ignoreUrlPatterns`
+
 ## [2.1.2] - 2020-09-04
 
 ### Fixed
