@@ -62,11 +62,12 @@ class CountryRedirectVariable
 
     public function appendOverrideParam(string $url)
     {
-        $overrideLocaleParam = CountryRedirect::$plugin->countryRedirectService->getOverrideLocaleParam();
-        $redirectedParam     = CountryRedirect::$plugin->countryRedirectService->getRedirectedParam();
+        $service = CountryRedirect::$plugin->countryRedirectService;
+        $overrideLocaleParam = $service->getOverrideLocaleParam();
+        $redirectedParam     = $service->getRedirectedParam();
 
         return UrlHelper::siteUrl($url, [
-            $overrideLocaleParam => '✓',
+            $overrideLocaleParam => $service->getQueryParamsValue(),
             $redirectedParam     => null,
         ]);
     }

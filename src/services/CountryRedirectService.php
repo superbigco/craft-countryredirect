@@ -140,6 +140,7 @@ class CountryRedirectService extends Component
         $sites = Craft::$app->getSites()->getAllSites();
         $links = [];
         $overrideLocaleParam = $this->getOverrideLocaleParam();
+        $paramValue = $this->getQueryParamsValue();
 
         foreach ($sites as $site) {
             /** @var Site $site */
@@ -148,7 +149,7 @@ class CountryRedirectService extends Component
 
             $link->siteName = $site->name;
             $link->siteHandle = $site->handle;
-            $link->url = rtrim($siteUrl, '?') . '?' . http_build_query([$overrideLocaleParam => '✓']);
+            $link->url = rtrim($siteUrl, '?') . '?' . http_build_query([$overrideLocaleParam => $paramValue]);
             $links[] = $link;
         }
 
@@ -298,7 +299,7 @@ class CountryRedirectService extends Component
             return $url;
         }
 
-        $query = $param . '=✓';
+        $query = $param . '=' . $this->getQueryParamsValue();
         $parsedUrl = parse_url($url);
 
         if (empty($parsedUrl['path'])) {
@@ -329,7 +330,7 @@ class CountryRedirectService extends Component
             return $url;
         }
 
-        $query = $param . '=✓';
+        $query = $param . '=' . $this->getQueryParamsValue();
         $parsedUrl = parse_url($url);
 
         if (empty($parsedUrl['path'])) {
@@ -371,6 +372,11 @@ class CountryRedirectService extends Component
     public function getOverrideLocaleParam()
     {
         return $this->config->overrideLocaleParam;
+    }
+
+    public function getQueryParamsValue()
+    {
+        return $this->config->queryParamsValue;
     }
 
     /**

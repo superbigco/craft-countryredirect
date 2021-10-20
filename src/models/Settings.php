@@ -63,6 +63,7 @@ class Settings extends Model
     public $overrideIp           = null;
     public $overrideLocaleParam  = 'selected-locale';
     public $redirectedParam      = 'redirected';
+    public $queryParamsValue      = '✓';
     public $bannerParam          = 'fromBanner';
     public $cookieName           = 'countryRedirect';
     public $cookieNameBanner     = 'countryRedirectBanner';
