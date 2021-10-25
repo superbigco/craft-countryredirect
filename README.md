@@ -72,13 +72,22 @@ return [
         'ignoreBots'          => true,
 
         /*
-         * Add any special URL segments you want to ignore
-         * Eg. 'ignoreSegments' => [
-         *     'this/page/only/exists/in/one/site',
-         *     'global-page'
-         * ],
-         */
-        'ignoreSegments'      => [ ],
+        * Add any special URL patterns you want to ignore when deciding to redirect
+        * This option accepts either exact matches (note the = prefix):
+        * '=/shop',
+        * or regex patterns:
+        * '^\/global\//'
+        */
+        'ignoreUrlPatterns' => [
+            // Matches '/shop' exactly
+            '=/shop',
+
+            // Matches uri that starts with '/global/'
+            '/^\/global\//',
+
+            // Matches a range of sitemap urls like '/sitemap.xml', '/no/sitemap.xml', '/sitemap_portfolio_1.xml', etc.
+            '/^\/(no\/|en\/)*sitemap([\s\S])*\.xml$/',
+        ],
 
         /*
          * Cookie name
@@ -94,6 +103,11 @@ return [
          * The URL parameter that indicates that a user was redirect
          */
         'redirectedParam' => 'redirected',
+
+        /*
+        * The value of query params
+        */
+        'queryParamsValue' => '1',
 
         /*
          * Map a countrys two-letter ISO code to a Craft Site Handle, and/or define a catch-all with a * asterix
