@@ -4,10 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [2.2.0] - 2021-10-25
 
 ### Added
-- Added `ignoreUrlPatterns`. It is now possible to either ignore exact matches or use regex when deciding to redirect
+- Added `ignoreUrlPatterns`. It is now possible to either ignore exact matches or use regex when deciding to not redirect
 - Added `queryParamsValue` that allows you to override the default query params value (the ✓)
 
 ### Fixed
