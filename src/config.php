@@ -61,6 +61,10 @@ return [
          */
         'overrideLocaleParam' => 'selected-locale',
         /*
+         * Append existing query params when generating redirect URLs
+         */
+        'appendExistingQueryParamsToUrl' => true,
+        /*
          * The URL parameter that indicates that a user was redirected
          */
         'redirectedParam'     => 'redirected',

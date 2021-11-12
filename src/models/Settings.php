@@ -73,6 +73,7 @@ class Settings extends Model
     public $ignoreSegments       = [];
     public $ignoreUrlPatterns       = [];
     public $stripSlashWhenComparingExactUrlMatches       = true;
+    public $appendExistingQueryParamsToUrl       = true;
     public $banners              = [];
     public $dbPath;
     public $tempPath;

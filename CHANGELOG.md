@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.2.1] - 2021-11-12
+
+### Added
+- Added `appendExistingQueryParamsToUrl` config option.
+
+### Changed
+- Redirect URLs and URLs from `craft.countryRedirect.getLinks()` now retains any existing query params if enabled wit `appendExistingQueryParamsToUrl`
+
 ## [2.2.0] - 2021-10-25
 
 ### Added

@@ -45,6 +45,7 @@ class CountryRedirectService extends Component
     protected $countryMap;
     private $_matchedElement;
     private $_matchedElementRoute;
+    private $_existingQueryParams = [];
 
     public function init()
     {
@@ -173,21 +174,34 @@ class CountryRedirectService extends Component
         // Get locales
         $sites = Craft::$app->getSites()->getAllSites();
         $links = [];
-        $overrideLocaleParam = $this->getOverrideLocaleParam();
-        $paramValue = $this->getQueryParamsValue();
 
         foreach ($sites as $site) {
             /** @var Site $site */
             $link = new Link();
-            $siteUrl = $site->baseUrl;
+            $siteUrl = $site->getBaseUrl();
 
             $link->siteName = $site->name;
             $link->siteHandle = $site->handle;
-            $link->url = rtrim($siteUrl, '?') . '?' . http_build_query([$overrideLocaleParam => $paramValue]);
+            $link->url = $this->appendOverrideLocaleParamToUrl($siteUrl);
             $links[] = $link;
         }
 
         return $links;
+    }
+
+    public function appendOverrideLocaleParamToUrl($url)
+    {
+        $existingParams = [];
+        $overrideLocaleParam = $this->getOverrideLocaleParam();
+        $paramValue = $this->getQueryParamsValue();
+
+        if ($this->config->appendExistingQueryParamsToUrl) {
+            $existingParams = $this->getExistingQueryParams();
+        }
+
+        return UrlHelper::urlWithParams($url, array_merge($existingParams, [
+            $overrideLocaleParam => $paramValue,
+        ]));
     }
 
     public function wasRedirected(): bool
@@ -330,19 +344,25 @@ class CountryRedirectService extends Component
         $param = $this->config->redirectedParam;
 
         if (!$param) {
+            $url = UrlHelper::urlWithParams($url, $this->getExistingQueryParams());
+
             return $url;
         }
 
-        $query = $param . '=' . $this->getQueryParamsValue();
         $parsedUrl = parse_url($url);
+
 
         if (empty($parsedUrl['path'])) {
             $url .= '/';
         }
 
-        $separator = empty($parsedUrl['query']) ? '?' : '&';
+        if ($this->config->appendExistingQueryParamsToUrl) {
+            $url = UrlHelper::urlWithParams($url, array_merge($this->getExistingQueryParams(), [
+                $param => $this->getQueryParamsValue(),
+            ]));
+        }
 
-        return $url . $separator . $query;
+        return $url;
     }
 
     /*
@@ -679,13 +699,15 @@ class CountryRedirectService extends Component
             // Then check if this is the current URL
             try {
                 $currentUrl = Craft::$app->getRequest()->getAbsoluteUrl();
-                if ($currentUrl === $url) {
+
+                // Strip query param and compare to avoid redirect
+                if (UrlHelper::stripQueryString($currentUrl) === UrlHelper::stripQueryString($url)) {
                     return false;
                 }
             } catch (InvalidConfigException $e) {
             }
 
-            return $url;
+            return $this->appendRedirectedParamToUrl($url);
         }
 
         $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
@@ -728,5 +750,23 @@ class CountryRedirectService extends Component
     private function _normalizeCountryCode($countryCode = null)
     {
         return \strtolower($countryCode);
+    }
+
+    private function getExistingQueryParams()
+    {
+        if (empty($this->_existingQueryParams)) {
+            $mappedParams = [];
+            $query = $queryString = parse_url(Craft::$app->getRequest()->getAbsoluteUrl(), PHP_URL_QUERY);
+            $existingQueryParams = !empty($query) ? explode('&', $query) : [];
+
+            foreach ($existingQueryParams as $value) {
+                $parts = explode('=', $value);
+                $mappedParams[ $parts[0] ] = $parts[1] ?? '';
+            }
+
+            $this->_existingQueryParams = $mappedParams;
+        }
+
+        return $this->_existingQueryParams;
     }
 }
