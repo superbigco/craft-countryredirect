@@ -10,73 +10,55 @@
 
 namespace superbig\countryredirect\models;
 
-use craft\helpers\Template;
-use superbig\countryredirect\CountryRedirect;
-
 use Craft;
+
 use craft\base\Model;
+use craft\helpers\Template;
 
 /**
  * @author    Superbig
  * @package   CountryRedirect
  * @since     2.0.0
  */
-class Banner extends Model
+class Banner extends Model implements \Stringable
 {
-    // Public Properties
-    // =========================================================================
+    public string $text = '';
 
-    public $text        = '';
-    public $url         = null;
-    public $countryName = '';
-    public $siteHandle  = '';
-    public $siteName    = '';
+    public string|null $url = null;
 
-    // Public Methods
-    // =========================================================================
+    public string $countryName = '';
 
-    public function __toString()
+    public string $siteHandle = '';
+
+    public string $siteName = '';
+
+    public function __toString(): string
     {
         return $this->text;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->countryName;
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->siteHandle;
     }
 
-    public function getUrl()
+    public function getUrl(): ?string
     {
         return $this->url;
     }
 
-    /**
-     * @return \Twig_Markup
-     */
-    public function getText()
+    public function getText(): \Twig\Markup
     {
         return Template::raw($this->getTextRaw());
     }
 
-    public function getTextRaw()
+    public function getTextRaw(): string
     {
         return Craft::t('country-redirect', $this->text, ['countryName' => $this->countryName, 'url' => $this->url]);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            ['someAttribute', 'string'],
-            ['someAttribute', 'default', 'value' => 'Some Default'],
-        ];
     }
 }

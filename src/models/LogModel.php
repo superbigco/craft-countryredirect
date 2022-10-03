@@ -10,11 +10,9 @@
 
 namespace superbig\countryredirect\models;
 
-use craft\helpers\Template;
-use superbig\countryredirect\CountryRedirect;
-
-use Craft;
 use craft\base\Model;
+
+use superbig\countryredirect\CountryRedirect;
 use superbig\countryredirect\records\LogRecord;
 
 /**
@@ -24,46 +22,44 @@ use superbig\countryredirect\records\LogRecord;
  */
 class LogModel extends Model
 {
-    // Public Properties
-    // =========================================================================
-
     public $id;
+
     public $siteId;
+
     public $userId;
+
     public $ipAddress;
+
     public $userAgent;
+
     public $url;
+
     public $city;
+
     public $country;
+
     public $snapshot;
+
     public $dateCreated;
 
-    /**
-     * @param LogRecord $record
-     *
-     * @return LogModel
-     */
-    public static function createFromRecord(LogRecord $record)
+    public static function createFromRecord(LogRecord $record): static
     {
         $model = new static();
         $model->setAttributes($record->getAttributes(), false);
 
         if (is_string($model->snapshot)) {
-            $model->snapshot = @json_decode($model->snapshot, true);
+            $model->snapshot = @json_decode($model->snapshot, true, 512, JSON_THROW_ON_ERROR);
         }
 
         return $model;
     }
 
-    // Public Methods
-    // =========================================================================
-
-    public function getFromUrl()
+    public function getFromUrl(): string
     {
         return urldecode($this->getSnapshotValue('url'));
     }
 
-    public function getTargetUrl()
+    public function getTargetUrl(): string
     {
         return urldecode($this->getSnapshotValue('targetUrl'));
     }
@@ -83,13 +79,7 @@ class LogModel extends Model
         return $this->snapshot[ $key ] ?? null;
     }
 
-    /**
-     * @param $key
-     * @param $data
-     *
-     * @return $this
-     */
-    public function addSnapshotValue($key, $data)
+    public function addSnapshotValue($key, $data): static
     {
         if (!is_array($this->snapshot)) {
             $this->snapshot = [];
@@ -98,13 +88,5 @@ class LogModel extends Model
         $this->snapshot[ $key ] = $data;
 
         return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        parent::rules();
     }
 }

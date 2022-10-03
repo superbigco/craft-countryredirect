@@ -12,7 +12,6 @@ namespace superbig\countryredirect\console\controllers;
 
 use superbig\countryredirect\CountryRedirect;
 
-use Craft;
 use yii\console\Controller;
 use yii\console\ExitCode;
 use yii\helpers\Console;
@@ -34,13 +33,13 @@ class UpdateController extends Controller
      *
      * @return mixed
      */
-    public function actionUpdate()
+    public function actionUpdate(): int
     {
-        $service     = CountryRedirect::$plugin->getDatabase();
-        $steps       = [
-            'checkLicenseKey'  => 'Checking license key',
+        $service = CountryRedirect::$plugin->getDatabase();
+        $steps = [
+            'checkLicenseKey' => 'Checking license key',
             'downloadDatabase' => 'Downloaded database',
-            'unpackDatabase'   => 'Unpacked database',
+            'unpackDatabase' => 'Unpacked database',
         ];
         $currentStep = 1;
 
@@ -56,10 +55,10 @@ class UpdateController extends Controller
                     return ExitCode::UNSPECIFIED_ERROR;
                 }
 
-                Console::updateProgress($currentStep, 3, "{$step}");
+                Console::updateProgress($currentStep, 3, sprintf('%s', $step));
             }
 
-            $currentStep++;
+            ++$currentStep;
         }
 
         Console::endProgress();

@@ -10,23 +10,18 @@
 
 namespace superbig\countryredirect\services;
 
+use Craft;
+use craft\base\Component;
 use craft\base\Element;
 use craft\helpers\App;
-use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
 use craft\web\Response;
-use GeoIp2\Database\Reader;
-use GuzzleHttp\Client;
+
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
 use superbig\countryredirect\CountryRedirect;
-
-use Craft;
-use craft\base\Component;
-use superbig\countryredirect\helpers\CountryRedirectHelper;
 use superbig\countryredirect\models\Banner;
 use superbig\countryredirect\models\Link;
-use superbig\countryredirect\models\LogModel;
 use superbig\countryredirect\models\Settings;
 use yii\base\InvalidConfigException;
 
@@ -37,9 +32,6 @@ use yii\base\InvalidConfigException;
  */
 class CountryRedirectService extends Component
 {
-    // Public Methods
-    // =========================================================================
-
     /** @var Settings $config */
     protected $config;
     protected $countryMap;
@@ -47,7 +39,7 @@ class CountryRedirectService extends Component
     private $_matchedElementRoute;
     private $_existingQueryParams = [];
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -64,7 +56,7 @@ class CountryRedirectService extends Component
         $enabled = $this->config->enabled;
 
         if ($this->config->ignoreBots) {
-            $crawlerDetect = new CrawlerDetect;
+            $crawlerDetect = new CrawlerDetect();
 
             if ($crawlerDetect->isCrawler()) {
                 return false;
@@ -148,8 +140,7 @@ class CountryRedirectService extends Component
                     if ($relativeUrl === $exactMatch) {
                         return true;
                     }
-                }
-                else if (preg_match($ignorePattern, $relativeUrl)) {
+                } elseif (preg_match($ignorePattern, $relativeUrl)) {
                     return true;
                 }
             }
@@ -238,8 +229,7 @@ class CountryRedirectService extends Component
 
         if ($matchesCountry = array_key_exists(strtolower($countryCode), $bannersLc)) {
             $banner = $bannersLc[ strtolower($countryCode) ] ?? null;
-        }
-        elseif ($matchesSiteHandle = isset($banners[ $siteHandle ])) {
+        } elseif ($matchesSiteHandle = isset($banners[ $siteHandle ])) {
             $banner = $banners[ $siteHandle ] ?? null;
         }
 
@@ -662,16 +652,14 @@ class CountryRedirectService extends Component
                         return $countryLocaleLc[ $blCode ];
                     }
                 }
-            }
-            else {
+            } else {
                 return $countryLocale;
             }
         }
 
         if (isset($countryMap['*'])) {
             $countryLocale = $countryMap['*'];
-        }
-        else {
+        } else {
             $countryLocale = null;
         }
 

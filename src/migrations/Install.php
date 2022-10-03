@@ -21,24 +21,17 @@ use craft\db\Migration;
  */
 class Install extends Migration
 {
-    // Public Properties
-    // =========================================================================
-    /**
-     * @var string The database driver to use
-     */
-    public    $driver;
-    protected $tableName = '{{%countryredirect_log}}';
-    // Public Methods
-    // =========================================================================
-    /**
-     * @inheritdoc
-     */
-    public function safeUp()
+    public string|null $driver = null;
+
+    protected string $tableName = '{{%countryredirect_log}}';
+
+    public function safeUp(): bool
     {
         $this->driver = Craft::$app->getConfig()->getDb()->driver;
         if ($this->createTables()) {
             $this->createIndexes();
             $this->addForeignKeys();
+
             // Refresh the db schema caches
             Craft::$app->db->schema->refresh();
             $this->insertDefaultData();
@@ -47,41 +40,34 @@ class Install extends Migration
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function safeDown()
+    public function safeDown(): bool
     {
         $this->driver = Craft::$app->getConfig()->getDb()->driver;
         $this->removeTables();
 
         return true;
     }
-    // Protected Methods
-    // =========================================================================
-    /**
-     * @return bool
-     */
-    protected function createTables()
+
+    protected function createTables(): bool
     {
         $tablesCreated = false;
-        $tableSchema   = Craft::$app->db->schema->getTableSchema($this->tableName);
+        $tableSchema = Craft::$app->db->schema->getTableSchema($this->tableName);
         if ($tableSchema === null) {
             $tablesCreated = true;
             $this->createTable(
                 $this->tableName,
                 [
-                    'id'          => $this->primaryKey(),
+                    'id' => $this->primaryKey(),
                     'dateCreated' => $this->dateTime()->notNull(),
                     'dateUpdated' => $this->dateTime()->notNull(),
-                    'uid'         => $this->uid(),
-                    'siteId'      => $this->integer()->notNull(),
-                    'userId'      => $this->integer()->null()->defaultValue(null),
-                    'city'        => $this->string()->null()->defaultValue(null),
-                    'country'     => $this->string()->null()->defaultValue(null),
-                    'ipAddress'   => $this->string()->null()->defaultValue(null),
-                    'userAgent'   => $this->string(255)->null()->defaultValue(null),
-                    'snapshot'    => $this->text()->null()->defaultValue(null),
+                    'uid' => $this->uid(),
+                    'siteId' => $this->integer()->notNull(),
+                    'userId' => $this->integer()->null()->defaultValue(null),
+                    'city' => $this->string()->null()->defaultValue(null),
+                    'country' => $this->string()->null()->defaultValue(null),
+                    'ipAddress' => $this->string()->null()->defaultValue(null),
+                    'userAgent' => $this->string(255)->null()->defaultValue(null),
+                    'snapshot' => $this->text()->null()->defaultValue(null),
                 ]
             );
         }
@@ -89,38 +75,24 @@ class Install extends Migration
         return $tablesCreated;
     }
 
-    /**
-     * @return void
-     */
-    protected function createIndexes()
+    protected function createIndexes(): void
     {
         $this->createIndex(
-            $this->db->getIndexName(
-                $this->tableName,
-                'userId',
-                false
-            ),
+            $this->db->getIndexName(),
             $this->tableName,
             'userId',
             false
         );
 
-        // Additional commands depending on the db driver
-        switch ($this->driver) {
-            case DbConfig::DRIVER_MYSQL:
-                break;
-            case DbConfig::DRIVER_PGSQL:
-                break;
+        if ($this->driver == DbConfig::DRIVER_MYSQL) {
+        } elseif ($this->driver == DbConfig::DRIVER_PGSQL) {
         }
     }
 
-    /**
-     * @return void
-     */
-    protected function addForeignKeys()
+    protected function addForeignKeys(): void
     {
         $this->addForeignKey(
-            $this->db->getForeignKeyName($this->tableName, 'siteId'),
+            $this->db->getForeignKeyName(),
             $this->tableName,
             'siteId',
             '{{%sites}}',
@@ -129,7 +101,7 @@ class Install extends Migration
             'CASCADE'
         );
         $this->addForeignKey(
-            $this->db->getForeignKeyName($this->tableName, 'userId'),
+            $this->db->getForeignKeyName(),
             $this->tableName,
             'userId',
             '{{%users}}',
@@ -139,17 +111,11 @@ class Install extends Migration
         );
     }
 
-    /**
-     * @return void
-     */
-    protected function insertDefaultData()
+    protected function insertDefaultData(): void
     {
     }
 
-    /**
-     * @return void
-     */
-    protected function removeTables()
+    protected function removeTables(): void
     {
         $this->dropTableIfExists($this->tableName);
     }

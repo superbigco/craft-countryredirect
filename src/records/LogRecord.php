@@ -37,7 +37,7 @@ class LogRecord extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%countryredirect_log}}';
     }
@@ -50,16 +50,8 @@ class LogRecord extends ActiveRecord
      *
      * @return ActiveQueryInterface The relational query object.
      */
-    public function getUser(): ActiveQueryInterface
+    public function getUser(): \craft\db\ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'userId']);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return parent::rules();
     }
 }

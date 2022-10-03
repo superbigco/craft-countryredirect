@@ -10,19 +10,17 @@
 
 namespace superbig\countryredirect\services;
 
+use Craft;
+use craft\base\Component;
 use craft\helpers\FileHelper;
 use GeoIp2\Database\Reader;
 use GeoIp2\Exception\AddressNotFoundException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
-use Jaybizzle\CrawlerDetect\CrawlerDetect;
+
 use MaxMind\Db\Reader\InvalidDatabaseException;
 use superbig\countryredirect\CountryRedirect;
-
-use Craft;
-use craft\base\Component;
-use superbig\countryredirect\models\Link;
 use superbig\countryredirect\models\Settings;
 use yii\base\ErrorException;
 
@@ -48,30 +46,34 @@ class DatabaseService extends Component
     // =========================================================================
 
     protected $urls;
+
     protected $config;
+
     protected $localDatabaseFilename;
+
     protected $localDatabasePath;
+
     protected $unpackedDatabasePath;
+
     protected $localDatabasePathWithoutFilename;
+
     protected $settings;
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
         $this->settings = CountryRedirect::$plugin->getSettings();
     }
 
-    public function getCountryFromIp($ipAddress)
+    public function getCountryFromIp(string $ipAddress): ?\GeoIp2\Model\Country
     {
         // This creates the Reader object, which should be reused across lookups.
         try {
             $reader = new Reader($this->settings->getCountryDbPath());
 
             return $reader->country($ipAddress);
-        } catch (InvalidDatabaseException $e) {
-            return null;
-        } catch (AddressNotFoundException $e) {
+        } catch (InvalidDatabaseException|AddressNotFoundException) {
             return null;
         }
     }
@@ -92,14 +94,14 @@ class DatabaseService extends Component
     }
 
     /**
-     * @return array
      * @throws \yii\base\ErrorException
+     * @return string[]|bool[]
      */
-    public function downloadDatabase()
+    public function downloadDatabase(): array
     {
-        $settings      = $this->settings;
-        $dbPath        = $settings->getDbPath(null, true);
-        $tempPath      = $settings->getTempPath();
+        $settings = $this->settings;
+        $dbPath = $settings->getDbPath(null, true);
+        $settings->getTempPath();
         $countryDbPath = $settings->getCountryDbPath();
 
         if (!FileHelper::isWritable($dbPath)) {
@@ -121,24 +123,24 @@ class DatabaseService extends Component
                     'sink' => $tempFile,
                 ]);
             //@unlink($tempFile);
-        } catch (ConnectException $e) {
+        } catch (ConnectException $connectException) {
             $error = $this->formatErrorMessage('Failed to connect to {url}: {error}', [
-                'url'   => $settings->getCountryDownloadUrl(),
-                'error' => $e->getMessage(),
+                'url' => $settings->getCountryDownloadUrl(),
+                'error' => $connectException->getMessage(),
             ]);
 
             return $this->logError($error);
-        } catch (ClientException $e) {
+        } catch (ClientException $clientException) {
             $error = $this->formatErrorMessage('Failed to download {url}: {error}', [
-                'url'   => $settings->getCountryDownloadUrl(),
-                'error' => $e->getMessage(),
+                'url' => $settings->getCountryDownloadUrl(),
+                'error' => $clientException->getMessage(),
             ]);
 
             return $this->logError($error);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $error = $this->formatErrorMessage('Failed to get country database {url}: {error}', [
-                'url'   => $settings->getCountryDownloadUrl(),
-                'error' => $e->getMessage(),
+                'url' => $settings->getCountryDownloadUrl(),
+                'error' => $exception->getMessage(),
             ]);
 
             return $this->logError($error);
@@ -150,17 +152,17 @@ class DatabaseService extends Component
     }
 
     /**
-     * @return array
+     * @return string[]|bool[]
      */
-    public function unpackDatabase()
+    public function unpackDatabase(): array
     {
-        $settings       = $this->settings;
-        $checksumUrl    = $settings->getCountryChecksumDownloadUrl();
-        $countryDbPath  = $settings->getCountryDbPath($temp = true);
+        $settings = $this->settings;
+        $checksumUrl = $settings->getCountryChecksumDownloadUrl();
+        $countryDbPath = $settings->getCountryDbPath($temp = true);
         $remoteChecksum = null;
 
         try {
-            $guzzle   = new Client();
+            $guzzle = new Client();
             $response = $guzzle
                 ->get($checksumUrl);
 
@@ -168,11 +170,11 @@ class DatabaseService extends Component
 
             // Verify checksum
             if (md5(file_get_contents($countryDbPath)) !== $remoteChecksum) {
-                $error = $this->formatErrorMessage('Remote checksum for Country database doesn\'t match downloaded database. Please try again or contact support.');
+                $error = $this->formatErrorMessage("Remote checksum for Country database doesn't match downloaded database. Please try again or contact support.");
 
                 return $this->logError($error, __METHOD__);
             }
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $error = $this
                 ->formatErrorMessage('Was not able to get checksum from GeoLite url: {url}', [
                     'url' => $checksumUrl,
@@ -182,9 +184,9 @@ class DatabaseService extends Component
         }
 
         try {
-            $this->findAndWriteCountryDatabase($remoteChecksum);
-        } catch (\Exception $e) {
-            return $this->logError($e->getMessage(), __METHOD__);
+            $this->findAndWriteCountryDatabase();
+        } catch (\Exception $exception) {
+            return $this->logError($exception->getMessage(), __METHOD__);
         }
 
         return [
@@ -192,15 +194,12 @@ class DatabaseService extends Component
         ];
     }
 
-    /**
-     * @return bool
-     */
-    public function checkValidDb()
+    public function checkValidDb(): bool
     {
         return @file_exists(CountryRedirect::$plugin->getSettings()->getCountryDbPath());
     }
 
-    public function getLastUpdateTime()
+    public function getLastUpdateTime(): ?\DateTime
     {
         if (!$this->checkValidDb()) {
             return null;
@@ -208,10 +207,13 @@ class DatabaseService extends Component
 
         $time = FileHelper::lastModifiedTime(CountryRedirect::$plugin->getSettings()->getCountryDbPath());
 
-        return new \DateTime("@{$time}");
+        return new \DateTime(sprintf('@%d', $time));
     }
 
-    private function logError(string $error, $category = 'country-redirect')
+    /**
+     * @return array<string, string>
+     */
+    private function logError(string $error, $category = 'country-redirect'): array
     {
         Craft::error($error, $category);
 
@@ -220,7 +222,7 @@ class DatabaseService extends Component
         ];
     }
 
-    private function logInfo(string $message, $category = 'country-redirect')
+    private function logInfo(string $message, $category = 'country-redirect'): void
     {
         Craft::info($message, $category);
     }
@@ -230,26 +232,26 @@ class DatabaseService extends Component
         return Craft::t('country-redirect', $error, $vars);
     }
 
-    private function findAndWriteCountryDatabase()
+    private function findAndWriteCountryDatabase(): void
     {
-        $settings      = $this->settings;
+        $settings = $this->settings;
         $countryDbPath = $settings->getCountryDbPath();
-        $tempFile      = $settings->getCountryDbPath($isTemp = true);
-        $found         = false;
-        $archive       = new \PharData($tempFile);
+        $tempFile = $settings->getCountryDbPath($isTemp = true);
+        $found = false;
+        $archive = new \PharData($tempFile);
 
         foreach (new \RecursiveIteratorIterator($archive) as $file) {
             $fileInfo = pathinfo($file);
 
             if (!empty($fileInfo['extension']) && 'mmdb' === $fileInfo['extension']) {
-                $found  = true;
+                $found = true;
                 $result = $file->getContent();
 
                 try {
                     FileHelper::writeToFile($countryDbPath, $result);
 
                     @unlink($tempFile);
-                } catch (ErrorException $e) {
+                } catch (ErrorException) {
                     $error = $this->formatErrorMessage('Failed to write country database to {path}', [
                         'path' => $countryDbPath,
                     ]);

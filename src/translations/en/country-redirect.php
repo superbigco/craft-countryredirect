@@ -15,5 +15,5 @@
  */
 return [
     'Country Redirect plugin loaded' => 'Country Redirect plugin loaded',
-    'Country Redirect Log'           => 'Country Redirect Log',
+    'Country Redirect Log' => 'Country Redirect Log',
 ];

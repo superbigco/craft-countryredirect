@@ -2,7 +2,7 @@
   "name": "superbig/craft-countryredirect",
   "description": "Easily redirect visitors to a locale based on their country of origin",
   "type": "craft-plugin",
-  "version": "2.2.1",
+  "version": "3.0.0",
   "keywords": [
     "craft",
     "cms",
@@ -22,7 +22,7 @@
     }
   ],
   "require": {
-    "craftcms/cms": "^3.1.0",
+    "craftcms/cms": "^4.0.0",
     "geoip2/geoip2": "^2.3",
     "jaybizzle/crawler-detect": "1.*",
     "jasongrimes/paginator": "^1.0.0",

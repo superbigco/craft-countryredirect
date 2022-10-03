@@ -10,15 +10,10 @@
 
 namespace superbig\countryredirect\services;
 
-use craft\commerce\models\Country;
-use craft\helpers\FileHelper;
-use GuzzleHttp\Client;
-use Jaybizzle\CrawlerDetect\CrawlerDetect;
-use superbig\countryredirect\CountryRedirect;
-
 use Craft;
+
 use craft\base\Component;
-use superbig\countryredirect\models\Link;
+use superbig\countryredirect\CountryRedirect;
 use superbig\countryredirect\models\LogModel;
 use superbig\countryredirect\records\LogRecord;
 
@@ -32,18 +27,16 @@ class LogService extends Component
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         parent::init();
     }
 
     /**
      * @param     $offset
-     * @param int $limit
      *
-     * @return array|null
      */
-    public function getAllLogs($offset = null, $limit = 20)
+    public function getAllLogs($offset = null, int $limit = 20): ?array
     {
         $query = LogRecord::find()->orderBy('dateCreated desc');
 
@@ -55,20 +48,15 @@ class LogService extends Component
 
         $logs = $query->all();
 
-        if (!$logs) {
+        if ($logs === []) {
             return null;
         }
 
-        return array_map(function(LogRecord $record) {
-            return LogModel::createFromRecord($record);
-        }, $logs);
+        return array_map(static fn(LogRecord $record): \superbig\countryredirect\models\LogModel => LogModel::createFromRecord($record), $logs);
     }
 
 
-    /**
-     * @return int
-     */
-    public function getLogCount()
+    public function getLogCount(): int
     {
         return (int)LogRecord::find()->count();
     }
@@ -76,14 +64,14 @@ class LogService extends Component
     /**
      * @param null $targetUrl
      */
-    public function logRedirect($targetUrl = null)
+    public function logRedirect($targetUrl = null): void
     {
         $redirectService = CountryRedirect::$plugin->countryRedirectService;
-        $log             = new LogModel();
-        $log->siteId     = Craft::$app->getSites()->currentSite->id;
-        $request         = Craft::$app->getRequest();
-        $log->userAgent  = $request->getUserAgent();
-        $log->ipAddress  = $redirectService->getIpAddress();
+        $log = new LogModel();
+        $log->siteId = Craft::$app->getSites()->currentSite->id;
+        $request = Craft::$app->getRequest();
+        $log->userAgent = $request->getUserAgent();
+        $log->ipAddress = $redirectService->getIpAddress();
 
         if ($user = Craft::$app->getUser()->getIdentity()) {
             $log->userId = $user->id;
@@ -98,34 +86,28 @@ class LogService extends Component
             try {
                 $log->addSnapshotValue('url', $request->getAbsoluteUrl());
                 $log->addSnapshotValue('targetUrl', $targetUrl);
-            } catch (InvalidConfigException $e) {
+            } catch (InvalidConfigException) {
             }
         }
 
         $this->saveRecord($log);
     }
 
-    /**
-     * @param LogModel $model
-     *
-     * @return bool
-     */
-    public function saveRecord(LogModel &$model)
+    public function saveRecord(LogModel &$model): bool
     {
         if ($model->id) {
             $record = LogRecord::findOne($model->id);
-        }
-        else {
+        } else {
             $record = new LogRecord();
         }
 
-        $record->userId    = $model->userId;
-        $record->siteId    = $model->siteId;
+        $record->userId = $model->userId;
+        $record->siteId = $model->siteId;
         $record->ipAddress = $model->ipAddress;
         $record->userAgent = $model->userAgent;
-        $record->city      = $model->city;
-        $record->country   = $model->country;
-        $record->snapshot  = $model->snapshot;
+        $record->city = $model->city;
+        $record->country = $model->getCountry();
+        $record->snapshot = $model->snapshot;
 
         if (!$record->save()) {
             Craft::error(
@@ -137,15 +119,13 @@ class LogService extends Component
 
             return false;
         }
+
         $model->id = $record->id;
 
         return true;
     }
 
-    /**
-     * @return int
-     */
-    public function clearLogs()
+    public function clearLogs(): int
     {
         return LogRecord::deleteAll();
     }

@@ -10,9 +10,9 @@
 
 namespace superbig\countryredirect;
 
+use superbig\countryredirect\services\CountryRedirectService;
 use superbig\countryredirect\services\DatabaseService;
 use superbig\countryredirect\services\LogService;
-use superbig\countryredirect\services\CountryRedirectService;
 
 /**
  * Class CountryRedirect

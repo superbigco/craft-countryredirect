@@ -10,11 +10,11 @@
 
 namespace superbig\countryredirect\models;
 
-use craft\helpers\FileHelper;
-use superbig\countryredirect\CountryRedirect;
-
 use Craft;
 use craft\base\Model;
+
+use craft\helpers\FileHelper;
+use superbig\countryredirect\CountryRedirect;
 
 /**
  * @author    Superbig
@@ -60,43 +60,29 @@ class Settings extends Model
     /**
      * Override what is considered the users IP. Useful when testing locally, or when you want to debug
      */
-    public $overrideIp           = null;
-    public $overrideLocaleParam  = 'selected-locale';
-    public $redirectedParam      = 'redirected';
-    public $queryParamsValue      = '✓';
-    public $bannerParam          = 'fromBanner';
-    public $cookieName           = 'countryRedirect';
-    public $cookieNameBanner     = 'countryRedirectBanner';
-    public $licenseKey           = '';
-    public $ignoreBots           = true;
-    public $countryMap           = [];
-    public $ignoreSegments       = [];
-    public $ignoreUrlPatterns       = [];
-    public $stripSlashWhenComparingExactUrlMatches       = true;
-    public $appendExistingQueryParamsToUrl       = true;
-    public $banners              = [];
+    public $overrideIp = null;
+    public $overrideLocaleParam = 'selected-locale';
+    public $redirectedParam = 'redirected';
+    public $queryParamsValue = '✓';
+    public $bannerParam = 'fromBanner';
+    public $cookieName = 'countryRedirect';
+    public $cookieNameBanner = 'countryRedirectBanner';
+    public $licenseKey = '';
+    public $ignoreBots = true;
+    public $countryMap = [];
+    public $ignoreSegments = [];
+    public $ignoreUrlPatterns = [];
+    public $stripSlashWhenComparingExactUrlMatches = true;
+    public $appendExistingQueryParamsToUrl = true;
+    public $banners = [];
     public $dbPath;
     public $tempPath;
-    public $accountAreaUrl       = 'https://www.maxmind.com/en/account';
-    public $cityDbDownloadUrl    = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz';
+    public $accountAreaUrl = 'https://www.maxmind.com/en/account';
+    public $cityDbDownloadUrl = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz';
     public $countryDbDownloadUrl = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz';
     public $countryDbChecksumUrl = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.md5';
-    public $cityDbFilename       = 'GeoLite2-City.mmdb';
-    public $countryDbFilename    = 'GeoLite2-Country.mmdb';
-
-    // Public Methods
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            //[ 'someAttribute', 'string' ],
-            //[ 'someAttribute', 'default', 'value' => 'Some Default' ],
-        ];
-    }
+    public $cityDbFilename = 'GeoLite2-City.mmdb';
+    public $countryDbFilename = 'GeoLite2-Country.mmdb';
 
     public function getCountryDownloadUrl()
     {

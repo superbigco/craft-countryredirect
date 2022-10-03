@@ -31,8 +31,8 @@ return [
         /*
          * Or specifically logged in/anon users
          */
-        'enabled'             => [
-            'loggedIn'  => true,
+        'enabled' => [
+            'loggedIn' => true,
             'anonymous' => true,
         ],
         /*
@@ -42,7 +42,7 @@ return [
         /*
          * Don't redirect bots/crawlers like GoogleBot, Bing etc.
          */
-        'ignoreBots'          => true,
+        'ignoreBots' => true,
         /*
          * Add any special URL segments you want to ignore
          * Eg. 'ignoreSegments' => [
@@ -51,11 +51,11 @@ return [
          *     'fr/'
          * ],
          */
-        'ignoreSegments'      => [],
+        'ignoreSegments' => [],
         /*
          * Cookie name
          */
-        'cookieName'          => 'countryRedirect',
+        'cookieName' => 'countryRedirect',
         /*
          * The URL parameter that let a user manually select which locale they want to see
          */
@@ -67,7 +67,7 @@ return [
         /*
          * The URL parameter that indicates that a user was redirected
          */
-        'redirectedParam'     => 'redirected',
+        'redirectedParam' => 'redirected',
         /*
         * The value of query params
         */
@@ -98,7 +98,7 @@ return [
          * This works by checking the Accept-Language header of the browser.
          *
          */
-        'countryMap'          => [],
+        'countryMap' => [],
         /*
          * If you want to show a banner that prompts visitors to their matching locale instead of redirecting them,
          * you can define these here.
@@ -110,11 +110,11 @@ return [
          *   'en_us' => 'It looks like your visiting from {countryName}. Do you <a href="{url}">want to visited the international site?</a>'
          * ],
          */
-        'banners'             => [],
+        'banners' => [],
 
         /*
          * Override the detected IP - useful for testing, or when no IP address can be detected
          */
-        'overrideIp'          => null,
+        'overrideIp' => null,
     ],
 ];

@@ -10,9 +10,6 @@
 
 namespace superbig\countryredirect\models;
 
-use superbig\countryredirect\CountryRedirect;
-
-use Craft;
 use craft\base\Model;
 
 /**
@@ -22,27 +19,30 @@ use craft\base\Model;
  */
 class Config extends Model
 {
-    // Public Properties
-    // =========================================================================
+    public string $overrideLocaleParam = 'selected-locale';
 
-    public $overrideLocaleParam = 'selected-locale';
-    public $redirectedParam     = 'redirected';
-    public $cookieName          = 'countryRedirect';
-    public $cookieNameBanner    = 'countryRedirectBanner';
-    public $ignoreBots          = true;
-    public $enabled             = false;
-    public $countryMap          = [];
-    public $ignoreSegments      = [];
-    public $banners             = [];
-    public $ipAddress;
+    public string $redirectedParam = 'redirected';
 
-    // Public Methods
-    // =========================================================================
+    public string $cookieName = 'countryRedirect';
+
+    public string $cookieNameBanner = 'countryRedirectBanner';
+
+    public bool $ignoreBots = true;
+
+    public bool $enabled = false;
+
+    public array $countryMap = [];
+
+    public array $ignoreSegments = [];
+
+    public array $banners = [];
+
+    public ?string $ipAddress = null;
 
     /**
-     * @inheritdoc
+     * @return array<int, array<string[]|string>>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['overrideLocaleParam', 'redirectedParam', 'cookieName', 'cookieNameBanner'], 'string'],

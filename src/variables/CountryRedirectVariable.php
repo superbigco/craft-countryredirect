@@ -13,8 +13,6 @@ namespace superbig\countryredirect\variables;
 use craft\helpers\UrlHelper;
 use superbig\countryredirect\CountryRedirect;
 
-use Craft;
-
 /**
  * @author    Superbig
  * @package   CountryRedirect
@@ -24,13 +22,15 @@ class CountryRedirectVariable
 {
     // Public Methods
     // =========================================================================
-
-    public function getLinks()
+    /**
+     * @return \superbig\countryredirect\models\Link[]
+     */
+    public function getLinks(): array
     {
         return CountryRedirect::$plugin->countryRedirectService->getLinks();
     }
 
-    public function redirected()
+    public function redirected(): bool
     {
         return CountryRedirect::$plugin->countryRedirectService->wasRedirected();
     }
@@ -50,7 +50,7 @@ class CountryRedirectVariable
         return CountryRedirect::$plugin->countryRedirectService->getBanner();
     }
 
-    public function getBannerCookieName()
+    public function getBannerCookieName(): string
     {
         return CountryRedirect::$plugin->countryRedirectService->getBannerCookieName();
     }
@@ -60,15 +60,15 @@ class CountryRedirectVariable
         return CountryRedirect::$plugin->countryRedirectService->getBannerParam();
     }
 
-    public function appendOverrideParam(string $url)
+    public function appendOverrideParam(string $url): string
     {
         $service = CountryRedirect::$plugin->countryRedirectService;
         $overrideLocaleParam = $service->getOverrideLocaleParam();
-        $redirectedParam     = $service->getRedirectedParam();
+        $redirectedParam = $service->getRedirectedParam();
 
         return UrlHelper::siteUrl($url, [
             $overrideLocaleParam => $service->getQueryParamsValue(),
-            $redirectedParam     => null,
+            $redirectedParam => null,
         ]);
     }
 }

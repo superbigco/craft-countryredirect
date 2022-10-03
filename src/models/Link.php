@@ -10,11 +10,10 @@
 
 namespace superbig\countryredirect\models;
 
-use craft\helpers\Template;
-use superbig\countryredirect\CountryRedirect;
-
-use Craft;
 use craft\base\Model;
+use craft\helpers\Template;
+
+use superbig\countryredirect\CountryRedirect;
 
 /**
  * @author    Superbig
@@ -23,16 +22,10 @@ use craft\base\Model;
  */
 class Link extends Model
 {
-    // Public Properties
-    // =========================================================================
-
     public $siteHandle = '';
-    public $siteName   = '';
-    public $url        = '';
-    public $catchAll   = false;
-
-    // Public Methods
-    // =========================================================================
+    public $siteName = '';
+    public $url = '';
+    public $catchAll = false;
 
     /**
      * Use the ID as the string representation of siteHandle.
@@ -47,7 +40,7 @@ class Link extends Model
     public function getLink($options = [])
     {
         $options = array_merge(['title' => $this->getName()], $options);
-        $parts   = [
+        $parts = [
             '<a href="' . $this->url . '"',
         ];
 
@@ -72,9 +65,6 @@ class Link extends Model
         return $this->siteHandle;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules()
     {
         return [

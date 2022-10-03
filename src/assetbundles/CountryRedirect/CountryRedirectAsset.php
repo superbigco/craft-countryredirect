@@ -10,7 +10,6 @@
 
 namespace superbig\countryredirect\assetbundles\CountryRedirect;
 
-use Craft;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 
@@ -27,7 +26,7 @@ class CountryRedirectAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = "@superbig/countryredirect/assetbundles/CountryRedirect/dist";
 

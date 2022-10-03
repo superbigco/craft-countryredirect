@@ -10,10 +10,10 @@
 
 namespace superbig\countryredirect\controllers;
 
-use superbig\countryredirect\CountryRedirect;
-
 use Craft;
+
 use craft\web\Controller;
+use superbig\countryredirect\CountryRedirect;
 
 /**
  * @author    Superbig
@@ -30,7 +30,7 @@ class DefaultController extends Controller
      *         The actions must be in 'kebab-case'
      * @access protected
      */
-    protected $allowAnonymous = ['info'];
+    protected array|int|bool $allowAnonymous = ['info'];
 
     // Public Methods
     // =========================================================================
@@ -38,7 +38,7 @@ class DefaultController extends Controller
     /**
      * Handle a request going to our plugin's index action URL, e.g.: actions/countryRedirect
      */
-    public function actionDownloadDatabase()
+    public function actionDownloadDatabase(): \yii\web\Response
     {
         $response = CountryRedirect::$plugin->getDatabase()->downloadDatabase();
 
@@ -49,7 +49,7 @@ class DefaultController extends Controller
         return $this->asJson($response);
     }
 
-    public function actionUnpackDatabase()
+    public function actionUnpackDatabase(): \yii\web\Response
     {
         $response = CountryRedirect::$plugin->getDatabase()->unpackDatabase();
 
@@ -60,7 +60,7 @@ class DefaultController extends Controller
         return $this->asJson($response);
     }
 
-    public function actionUpdateDatabase()
+    public function actionUpdateDatabase(): \yii\web\Response
     {
         $response = CountryRedirect::$plugin->getDatabase()->downloadDatabase();
 
@@ -77,28 +77,28 @@ class DefaultController extends Controller
         return $this->asJson($response);
     }
 
-    public function actionClearLogs()
+    public function actionClearLogs(): \yii\web\Response
     {
         Craft::$app->getSession()->setNotice(Craft::t('country-redirect', 'Cleared logs'));
 
-        CountryRedirect::$plugin->log->clearLogs();
+        CountryRedirect::$plugin->getLog()->clearLogs();
 
         return $this->redirect('utilities/country-redirect');
     }
 
-    public function actionInfo()
+    public function actionInfo(): \yii\web\Response
     {
-        $currentUrl        = Craft::$app->getRequest()->getParam('currentUrl');
+        $currentUrl = Craft::$app->getRequest()->getParam('currentUrl');
         $currentSiteHandle = Craft::$app->getRequest()->getParam('currentSiteHandle');
-        $bannerModel       = CountryRedirect::$plugin->getService()->getBanner($currentUrl, $currentSiteHandle);
+        $bannerModel = CountryRedirect::$plugin->getService()->getBanner($currentUrl, $currentSiteHandle);
 
         if ($bannerModel) {
-            $banner         = $bannerModel->toArray();
+            $banner = $bannerModel->toArray();
             $banner['text'] = $bannerModel->getTextRaw();
         }
 
         return $this->asJson([
-            'info'   => CountryRedirect::$plugin->getService()->getInfo(),
+            'info' => CountryRedirect::$plugin->getService()->getInfo(),
             'banner' => $banner ?? null,
         ]);
     }

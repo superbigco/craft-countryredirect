@@ -1,7 +1,7 @@
 <?php
 
 return [
-    '*'  => 'All countries',
+    '*' => 'All countries',
     'AF' => 'Afghanistan',
     'AX' => 'Aland Islands',
     'AL' => 'Albania',
@@ -253,4 +253,3 @@ return [
     'ZM' => 'Zambia',
     'ZW' => 'Zimbabwe',
 ];
-?>
