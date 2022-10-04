@@ -35,7 +35,7 @@
             {# @var log \superbig\countryredirect\models\LogModel #}
             {% set volume = log %}
             <tr>
-                <td scope="row" data-title="{{ 'Log Date'|t('app') }}">{{log.dateCreated }}</td>
+                <td scope="row" data-title="{{ 'Log Date'|t('app') }}">{{"#{log.dateCreated|date('short')} #{log.dateCreated|time('short')}" }}</td>
                 <td scope="row" data-title="{{ 'Country'|t('app') }}">{{log.getCountry() }}</td>
                 <td scope="row" data-title="{{ 'Original URL'|t('app') }}">
                     {{ log.getFromUrl() }}
