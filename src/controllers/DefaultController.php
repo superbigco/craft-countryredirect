@@ -86,7 +86,7 @@ class DefaultController extends Controller
 
         CountryRedirect::$plugin->getLog()->clearLogs();
 
-        return $this->redirect('utilities/country-redirect');
+        return $this->redirect('utilities/country-redirect-log-utility');
     }
 
     public function actionInfo(): \yii\web\Response
