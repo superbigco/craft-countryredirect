@@ -40,10 +40,11 @@ class DefaultController extends Controller
      */
     public function actionDownloadDatabase(): \yii\web\Response
     {
-        $response = CountryRedirect::$plugin->getDatabase()->downloadDatabase();
+        $licenseKey = $this->request->getParam('licenseKey');
+        $response = CountryRedirect::$plugin->getDatabase()->downloadDatabase($licenseKey);
 
         if (isset($response['error'])) {
-            return $this->asJson($response['error']);
+            return $this->asFailure($response['error']);
         }
 
         return $this->asJson($response);
@@ -51,10 +52,11 @@ class DefaultController extends Controller
 
     public function actionUnpackDatabase(): \yii\web\Response
     {
-        $response = CountryRedirect::$plugin->getDatabase()->unpackDatabase();
+        $licenseKey = $this->request->getParam('licenseKey');
+        $response = CountryRedirect::$plugin->getDatabase()->unpackDatabase($licenseKey);
 
         if (isset($response['error'])) {
-            return $this->asJson($response['error']);
+            return $this->asFailure($response['error']);
         }
 
         return $this->asJson($response);
@@ -62,13 +64,14 @@ class DefaultController extends Controller
 
     public function actionUpdateDatabase(): \yii\web\Response
     {
-        $response = CountryRedirect::$plugin->getDatabase()->downloadDatabase();
+        $licenseKey = $this->request->getParam('licenseKey');
+        $response = CountryRedirect::$plugin->getDatabase()->downloadDatabase($licenseKey);
 
         if (isset($response['error'])) {
             return $this->asJson($response['error']);
         }
 
-        $response = CountryRedirect::$plugin->getDatabase()->unpackDatabase();
+        $response = CountryRedirect::$plugin->getDatabase()->unpackDatabase($licenseKey);
 
         if (isset($response['error'])) {
             return $this->asJson($response['error']);

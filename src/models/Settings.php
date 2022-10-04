@@ -84,14 +84,18 @@ class Settings extends Model
     public $cityDbFilename = 'GeoLite2-City.mmdb';
     public $countryDbFilename = 'GeoLite2-Country.mmdb';
 
-    public function getCountryDownloadUrl()
+    public function getCountryDownloadUrl($licenseKey = null)
     {
-        return "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&suffix=tar.gz&license_key={$this->licenseKey}";
+        $licenseKey = $licenseKey ?? $this->licenseKey;
+
+        return "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&suffix=tar.gz&license_key={$licenseKey}";
     }
 
-    public function getCountryChecksumDownloadUrl()
+    public function getCountryChecksumDownloadUrl($licenseKey = null)
     {
-        return "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&suffix=tar.gz.md5&license_key={$this->licenseKey}";
+        $licenseKey = $licenseKey ?? $this->licenseKey;
+
+        return "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&suffix=tar.gz.md5&license_key={$licenseKey}";
     }
 
     public function getCityDownloadUrl()

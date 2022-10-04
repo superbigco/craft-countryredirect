@@ -28,6 +28,7 @@
         init: function ($updater) {
             var self = this;
             self.$dbWarning = $('[data-db-warning]');
+            self.$licenseKeyInput = $('[name="settings[licenseKey]"]');
             self.$updater = $updater;
             self.$start = self.$updater.find('.js-start');
             self.stepIds = Object.keys(self.steps);
@@ -61,6 +62,17 @@
             //self.reset();
             self.disableStart();
             self.next();
+        },
+
+        stop: function () {
+            var self = this;
+
+            if (self._progressBar) {
+                self.$statusContainer.addClass('hidden');
+                self._progressBar.hideProgressBar();
+            }
+
+            self.enableStart();
         },
 
         next: function () {
@@ -99,7 +111,9 @@
             stepKey = self.stepIds[self.currentStep];
             step = self.steps[stepKey];
 
-            Craft.postActionRequest(step.action, {}, function (response) {
+            Craft.postActionRequest(step.action, {
+                licenseKey: self.$licenseKeyInput.val(),
+            }, function (response) {
                 if (!response) {
                     Craft.cp.displayError('There occurred an error when running the step. Check the plugin logs (countryredirect.log) for further information.');
                     self.enableStart();
@@ -110,8 +124,8 @@
                 if (response.hasOwnProperty('success')) {
                     self.next();
                 } else {
-                    self.updateErrorStatus(response.error);
-                    self.enableStart();
+                    self.updateErrorStatus(response.message);
+                    self.stop();
 
                     return false;
                 }

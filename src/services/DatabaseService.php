@@ -97,7 +97,7 @@ class DatabaseService extends Component
      * @throws \yii\base\ErrorException
      * @return string[]|bool[]
      */
-    public function downloadDatabase(): array
+    public function downloadDatabase($licenseKey = null): array
     {
         $settings = $this->settings;
         $dbPath = $settings->getDbPath(null, true);
@@ -119,7 +119,7 @@ class DatabaseService extends Component
 
         try {
             (new Client())
-                ->get($settings->getCountryDownloadUrl(), [
+                ->get($settings->getCountryDownloadUrl($licenseKey), [
                     'sink' => $tempFile,
                 ]);
             //@unlink($tempFile);
@@ -154,10 +154,10 @@ class DatabaseService extends Component
     /**
      * @return string[]|bool[]
      */
-    public function unpackDatabase(): array
+    public function unpackDatabase($licenseKey = null): array
     {
         $settings = $this->settings;
-        $checksumUrl = $settings->getCountryChecksumDownloadUrl();
+        $checksumUrl = $settings->getCountryChecksumDownloadUrl($licenseKey);
         $countryDbPath = $settings->getCountryDbPath($temp = true);
         $remoteChecksum = null;
 
